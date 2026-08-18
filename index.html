@@ -20,7 +20,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 .game-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.game{background:white;border:1px solid var(--line);border-radius:18px;padding:15px;transition:.15s;text-align:left}.game:hover{transform:translateY(-1px)}.game .emoji{font-size:28px}.tag{display:inline-flex;padding:5px 8px;border-radius:999px;background:#f1ece6;color:#625a52;font-size:12px;margin-top:8px}.tag.auto{background:#eef6f1;color:#436d56}.hidden{display:none!important}.rule{padding:12px 0;border-bottom:1px dashed var(--line)}.rule:last-child{border-bottom:0}.rule b{display:block;margin-bottom:4px}
 .nav{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(600px,calc(100% - 28px));background:rgba(39,35,31,.95);backdrop-filter:blur(16px);border-radius:18px;padding:8px;display:flex;justify-content:space-around;box-shadow:0 10px 30px rgba(0,0,0,.18);z-index:20}.nav button{background:transparent;color:#d9d2ca;padding:9px 12px;border-radius:12px;font-size:12px;font-weight:800}.nav button.active{background:white;color:var(--ink)}
 .stat{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}.rank{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:16px;background:white;margin:8px 0}.rank .pos{font-size:22px;font-weight:900;width:34px}.rank .pts{margin-left:auto;font-weight:900}.badge{font-size:12px;border-radius:999px;padding:5px 8px;background:#eef6f1;color:#436d56}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:18px}.section-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:20px 0 10px}.section-title h2{margin:0}.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);background:#24211e;color:white;border-radius:999px;padding:10px 14px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:50}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.formgrid label{font-size:13px;font-weight:800}.formgrid label span{display:block;margin-bottom:5px}.calcbox{background:#f7f3ee;border:1px solid var(--line);border-radius:16px;padding:12px;margin:12px 0}.round-chip{display:inline-flex;padding:7px 10px;background:#fff;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:13px}.divider{height:1px;background:var(--line);margin:16px 0}.custom-note{padding:10px 12px;border-left:4px solid var(--accent);background:#fff5ef;border-radius:8px;font-size:13px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.formgrid label{font-size:13px;font-weight:800}.formgrid label span{display:block;margin-bottom:5px}.calcbox{background:#f7f3ee;border:1px solid var(--line);border-radius:16px;padding:12px;margin:12px 0}.round-chip{display:inline-flex;padding:7px 10px;background:#fff;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:13px}.divider{height:1px;background:var(--line);margin:16px 0}.custom-note{padding:10px 12px;border-left:4px solid var(--accent);background:#fff5ef;border-radius:8px;font-size:13px}.player-warning{margin:0 0 14px;padding:13px 15px;border:1px solid #e8c9a9;background:#fff8ed;border-radius:14px;font-weight:750;line-height:1.35}
 .avatar.big{width:58px;height:58px;font-size:30px;background:#fff;border:2px solid var(--line)}
 
 .scoreboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:12px 0}
@@ -33,7 +33,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 <body>
 <div id="toast" class="toast"></div>
 <div class="app">
-<div class="top"><div class="brand">Soirée<span>Jeux</span> 🎲</div><div class="pill">V4.1 · compagnon de soirée</div></div>
+<div class="top"><div class="brand">Soirée<span>Jeux</span> 🎲</div></div>
 
 <section id="home">
 <div class="hero"><h1>Une soirée. Plein de jeux.<br>Un seul champion. 🏆</h1><p>Les règles essentielles, les calculs de manche et le classement familial sont réunis au même endroit.</p><div class="actions" style="margin-top:18px"><button class="btn accent" onclick="showTab('players')">Préparer les joueurs</button><button class="btn alt" onclick="showTab('games')">Choisir un jeu</button></div></div>
@@ -120,7 +120,20 @@ function renderGames(){let e=document.getElementById("gamesList");e.innerHTML=""
 function saveCustomGame(){let name=document.getElementById("cg-name").value.trim();if(!name)return toast("Donne un nom au jeu");let dir=document.getElementById("cg-dir").value;state.customGames.push({id:"custom_"+Date.now(),name,emoji:document.getElementById("cg-emoji").value||"🎲",min:+document.getElementById("cg-min").value||2,max:+document.getElementById("cg-max").value||8,type:document.getElementById("cg-type").value||"personnalisé",engine:dir==="high"?"directHigh":"directLow",higher:dir==="high",setup:document.getElementById("cg-rules").value||"Règles personnalisées.",goal:"Selon vos règles.",turn:"Selon vos règles.",score:"Entre le score final de chaque joueur."});persist();toast("Jeu ajouté ✨");showTab("games")}
 
 function baseRules(g){return `<div class="hero"><div style="font-size:44px">${g.emoji}</div><h1 style="margin-top:5px">${esc(g.name)}</h1><p>${g.min} à ${g.max} joueurs · ${state.results.filter(r=>r.gameId===g.id && !r.archived).length} partie(s) enregistrée(s)</p></div><div class="quickbar"><button class="btn accent" onclick="openGame(gCurrentId)">↻ Rejouer / nouvelle partie</button><button class="btn alt" onclick="showTab('players')">👥 Modifier les joueurs</button></div><div class="grid"><div class="card"><h3>⚡ Règles express</h3><div class="rule"><b>1. Mise en place</b>${esc(g.setup)}</div><div class="rule"><b>2. But</b>${esc(g.goal)}</div><div class="rule"><b>3. Déroulement</b>${esc(g.turn)}</div><div class="rule"><b>4. Score</b>${esc(g.score)}</div></div><div class="card" id="scorePanel"></div></div>`}
-let gCurrentId=null;function openGame(id){gCurrentId=id;let g=games().find(x=>x.id===id);document.getElementById("gameDetailContent").innerHTML=baseRules(g);renderEngine(g);showTab("gameDetail")}
+let gCurrentId=null;function openGame(id){
+ gCurrentId=id;let g=games().find(x=>x.id===id);
+ document.getElementById("gameDetailContent").innerHTML=baseRules(g);
+ let count=names().length,panel=document.getElementById("scorePanel");
+ if(count<g.min||count>g.max){
+   let msg=count<g.min
+     ? `⚠️ Ce jeu se joue à partir de ${g.min} joueurs et vous n’êtes que ${count} joueur${count>1?"s":""} enregistré${count>1?"s":""}.`
+     : `⚠️ Ce jeu se joue jusqu’à ${g.max} joueurs et vous êtes ${count} joueurs enregistrés.`;
+   panel.innerHTML=`<div class="player-warning">${msg}</div><button class="btn alt" style="width:100%" onclick="showTab('players')">👥 Modifier les joueurs</button>`;
+ } else {
+   renderEngine(g);
+ }
+ showTab("gameDetail");
+}
 function playerOptions(includeNone=false){return (includeNone?'<option value="">—</option>':"")+names().map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join("")}
 function num(id,def=0){let e=document.getElementById(id);return e&&e.value!==""?Number(e.value):def}
 
