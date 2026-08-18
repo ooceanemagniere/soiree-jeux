@@ -82,7 +82,7 @@ const builtins=[
 {id:"triominos",name:"Triominos",emoji:"🔺",min:2,max:6,type:"tuiles",engine:"directHigh",higher:true,setup:"Chaque joueur prend ses Triominos selon la règle de votre édition, le reste forme la pioche.",goal:"Marquer le plus de points en faisant correspondre les chiffres des côtés.",turn:"Pose une tuile compatible. Les figures particulières peuvent donner des bonus.",score:"Entre les points de manche indiqués par le jeu ; le cumul est automatique."},
 {id:"septfamilles",name:"7 familles",emoji:"👨‍👩‍👧‍👦",min:2,max:6,type:"cartes",engine:"directHigh",higher:true,setup:"Distribuez les cartes. Chaque joueur regroupe ses cartes par famille.",goal:"Réunir le plus de familles complètes.",turn:"Demande à un joueur une carte précise d’une famille dont tu possèdes déjà au moins une carte.",score:"Entre le nombre de familles remportées."},
 {id:"yams",name:"Yams",emoji:"🎲",min:2,max:8,type:"dés",engine:"yams",higher:true,setup:"5 dés. Chaque joueur dispose de jusqu’à 3 lancers à son tour en conservant les dés souhaités.",goal:"Remplir la feuille de score et obtenir le total le plus élevé.",turn:"Après au maximum 3 lancers, inscris le résultat dans une catégorie encore libre.",score:"Feuille de score intégrée : l’appli additionne automatiquement les catégories et le bonus supérieur."},
-{id:"dobble",name:"Dobble",emoji:"👁️",min:2,max:8,type:"observation",engine:"winner",higher:true,setup:"Prenez le mini-jeu Dobble que vous souhaitez jouer et préparez les cartes selon sa règle.",goal:"Repérer le symbole identique entre deux cartes plus vite que les autres.",turn:"Le principe dépend du mini-jeu choisi, mais repose toujours sur le symbole commun entre deux cartes.",score:"Sélectionne simplement le gagnant de la partie."},
+{id:"dobble",name:"Dobble",emoji:"👁️",min:2,max:8,type:"observation",engine:"ranking",higher:true,setup:"Prenez le mini-jeu Dobble que vous souhaitez jouer et préparez les cartes selon sa règle.",goal:"Repérer le symbole identique entre deux cartes plus vite que les autres.",turn:"Le principe dépend du mini-jeu choisi, mais repose toujours sur le symbole commun entre deux cartes.",score:"Classe les joueurs selon leur ordre d’arrivée : 1er, 2e, 3e… Le premier est considéré vainqueur pour le classement général."},
 {id:"timebomb",name:"TimeBomb",emoji:"💣",min:4,max:8,type:"rôles cachés",engine:"teams",higher:true,setup:"Distribuez secrètement les rôles Sherlock/Moriarty et les câbles selon le nombre de joueurs.",goal:"Sherlock doit désamorcer la bombe ; Moriarty doit la faire exploser ou empêcher le désamorçage.",turn:"À chaque tour, les joueurs discutent puis coupent des câbles chez les autres joueurs.",score:"À la fin, indique le rôle de chacun et l’équipe gagnante. Tous les membres de l’équipe gagnante reçoivent la victoire."},
 {id:"traitresabord",name:"Traîtres à bord",emoji:"🏴‍☠️",min:3,max:8,type:"rôles cachés",engine:"teams",higher:true,setup:"Chaque joueur reçoit secrètement un rôle : Pirate ou Mutin/Traître selon votre édition.",goal:"Les pirates cherchent à remplir le coffre et éliminer les mutins ; les mutins sabotent et tentent de faire échouer les pirates.",turn:"Jouez les cartes Butin et Action en gardant votre rôle secret aussi longtemps que possible.",score:"À la fin, indique l’équipe de chaque joueur et quelle équipe a gagné."},
 {id:"dekal",name:"DEKAL",emoji:"🟦",min:2,max:6,type:"cartes",engine:"roundLow",higher:false,setup:"Chaque joueur construit et réorganise sa grille selon les règles de DEKAL.",goal:"Terminer avec le moins de points possible. Les cartes adjacentes de même valeur peuvent s’annuler en fin de partie.",turn:"Choisis et insère les cartes de façon à optimiser ta grille.",score:"Entre le total final de chaque joueur : le plus petit score gagne."},
@@ -147,6 +147,7 @@ function renderEngine(g){
  if(g.engine==="teams")return renderTeams(p,g);
  if(g.engine==="flip7")return renderFlip7(p,g);
  if(g.engine==="roundLow")return renderRoundLow(p,g);
+ if(g.engine==="ranking")return renderRankingGame(p,g);
  if(g.engine==="winner")return p.innerHTML=`<h3>🏁 Gagnant</h3><label><b>Qui a gagné ?</b><select id="winner">${playerOptions()}</select></label><button class="btn green" style="width:100%;margin-top:14px" onclick="saveWinner('${g.id}')">Valider</button>`;
  return renderDirect(p,g);
 }
@@ -225,6 +226,28 @@ function saveTarot(id,n){
   saveResult(g,scores,true,{preneur:pr,coef,contractLabel,bouts,pts,target,unit,misereAtout:ma,misereTete:mt,misereVal});
 }
 
+
+
+function ordinalFr(n){return n===1?"1er":n+"e"}
+function renderRankingGame(p,g){
+ let n=names().length;
+ p.innerHTML=`<h3>🏁 Classement de la partie</h3>
+ <p class="small">Indique l’ordre d’arrivée de chaque joueur.</p>
+ ${names().map((pl,i)=>`<div class="score-row"><div class="avatar">${initials(pl)}</div><div style="flex:1"><b>${esc(pl)}</b></div>
+ <select id="rank-${i}" style="max-width:150px">${Array.from({length:n},(_,k)=>`<option value="${k+1}">${ordinalFr(k+1)}</option>`).join("")}</select></div>`).join("")}
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRankingGame('${g.id}')">Enregistrer le classement</button>`;
+}
+function saveRankingGame(id){
+ let g=games().find(x=>x.id===id),n=names().length,ranks={},seen=new Set();
+ for(let i=0;i<n;i++){
+   let rank=Number(document.getElementById("rank-"+i).value);
+   if(seen.has(rank)) return toast("Chaque place doit être attribuée une seule fois");
+   seen.add(rank); ranks[names()[i]]=rank;
+ }
+ let scores={};
+ Object.entries(ranks).forEach(([pl,rank])=>scores[pl]=n-rank+1);
+ saveResult(g,scores,true,{ranking:ranks});
+}
 
 function renderTeams(p,g){
   p.innerHTML=`<h3>🕵️ Résultat de la partie</h3><p class="small">Attribue le camp réel de chacun, puis indique quel camp a gagné.</p>
