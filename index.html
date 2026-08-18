@@ -26,7 +26,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 .scoreboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:12px 0}
 .scoretile{background:white;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
 .scoretile .bigscore{font-size:25px;font-weight:900}
-.quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.player-pool{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.player-chip{padding:10px 13px;border-radius:999px;background:white;border:1px solid var(--line);font-weight:800}.player-chip.active{background:var(--ink);color:white;border-color:var(--ink)}.groupbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}.groupbox h3{margin:0 0 5px}
+.quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.player-pool{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.player-chip{padding:10px 13px;border-radius:999px;background:white;border:1px solid var(--line);font-weight:800}.player-chip.active{background:var(--ink);color:white;border-color:var(--ink)}.checkline{display:flex!important;align-items:center;gap:9px;min-height:44px}.checkline input{width:20px;height:20px;accent-color:var(--accent)}.groupbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}.groupbox h3{margin:0 0 5px}
 @media(max-width:760px){
   .grid,.formgrid{grid-template-columns:1fr}
   .game-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -228,8 +228,121 @@ function saveWinner(id){let g=games().find(x=>x.id===id),w=document.getElementBy
 function renderSkyjo(p,g){p.innerHTML=`<h3>🔢 Fin de manche Skyjo</h3><p class="small">Entre simplement la somme visible de chaque grille avant pénalité.</p><label><b>Qui a retourné sa dernière carte en premier ?</b><select id="sky-stopper">${playerOptions()}</select></label><div class="divider"></div>${names().map((x,i)=>`<div class="score-row"><div class="avatar">${avatarOf(x)}</div><div style="flex:1"><b>${esc(x)}</b></div><input id="sky-${i}" type="number" step="1" placeholder="Brut"></div>`).join("")}<div class="custom-note">Si la personne qui ferme n’a pas strictement le plus petit total (égalité comprise), son score positif de la manche est doublé automatiquement.</div><button class="btn green" style="width:100%;margin-top:14px" onclick="saveSkyjo('${g.id}')">Calculer & enregistrer</button>`}
 function saveSkyjo(id){let g=games().find(x=>x.id===id),stop=document.getElementById("sky-stopper").value,raw={};for(let i=0;i<names().length;i++){let e=document.getElementById("sky-"+i);if(e.value==="")return toast("Il manque un total");raw[names()[i]]=+e.value}let min=Math.min(...Object.values(raw)),scores={...raw};if(raw[stop]>=min && raw[stop]>0){let strictlyAlone=raw[stop]<Math.min(...Object.entries(raw).filter(([p])=>p!==stop).map(([,v])=>v));if(!strictlyAlone)scores[stop]=raw[stop]*2}saveResult(g,scores,false,{raw,stopper:stop});}
 
-function renderSkullKing(p,g){let r=Math.min(10,Math.max(1,state.skullRound||1));p.innerHTML=`<h3>🏴‍☠️ Manche Skull King</h3><div class="round-chip">Manche ${r} · ${r} carte${r>1?"s":""}</div><p class="small">Pour chaque joueur : pari, plis réellement gagnés et éventuels bonus capturés.</p><div id="skRows">${names().map((x,i)=>`<div class="calcbox"><b>${avatarOf(x)} ${esc(x)}</b><div class="formgrid" style="margin-top:9px"><label><span>Pari</span><input class="field" id="skb-${i}" type="number" min="0" max="${r}" value="0"></label><label><span>Plis gagnés</span><input class="field" id="skt-${i}" type="number" min="0" max="${r}" value="0"></label><label><span>14 couleurs (+10)</span><input class="field" id="sk14-${i}" type="number" min="0" max="3" value="0"></label><label><span>14 noir (+20)</span><input class="field" id="skb14-${i}" type="number" min="0" max="1" value="0"></label><label><span>Sirènes prises par pirate (+20)</span><input class="field" id="skm-${i}" type="number" min="0" value="0"></label><label><span>Pirates pris par Skull King (+30)</span><input class="field" id="skp-${i}" type="number" min="0" value="0"></label><label><span>Skull King pris par sirène (+40)</span><input class="field" id="sks-${i}" type="number" min="0" max="1" value="0"></label></div></div>`).join("")}</div><div class="custom-note">Les bonus ne sont comptés que si le pari est réussi. Pari 0 réussi : +10 × n° de manche. Pari 0 raté : −10 × n° de manche.</div><button class="btn green" style="width:100%;margin-top:14px" onclick="saveSkull('${g.id}',${r})">Calculer la manche</button>`}
-function saveSkull(id,r){let g=games().find(x=>x.id===id),scores={},details={round:r,players:{}};for(let i=0;i<names().length;i++){let p=names()[i],bid=num("skb-"+i),tricks=num("skt-"+i);if(bid>r||tricks>r)return toast("Pari/plis impossibles pour cette manche");let exact=bid===tricks,base;if(bid===0)base=tricks===0?10*r:-10*r;else base=exact?20*tricks:-10*Math.abs(bid-tricks);let bonus=0;if(exact)bonus=num("sk14-"+i)*10+num("skb14-"+i)*20+num("skm-"+i)*20+num("skp-"+i)*30+num("sks-"+i)*40;scores[p]=base+bonus;details.players[p]={bid,tricks,base,bonus}}state.skullRound=r>=10?1:r+1;saveResult(g,scores,true,details)}
+function skullHistory(){
+  return state.results.filter(r=>r.gameId==="skullking" && r.details && r.details.round && !r.archived);
+}
+function skullTotals(){
+  let t={};names().forEach(p=>t[p]=0);
+  skullHistory().forEach(r=>Object.entries(r.scores).forEach(([p,s])=>t[p]=(t[p]||0)+s));
+  return t;
+}
+function skOptions(max){
+  return Array.from({length:max+1},(_,i)=>`<option value="${i}">${i}</option>`).join("");
+}
+function renderSkullKing(p,g){
+  let hist=skullHistory(),r=Math.min(10,hist.length+1),totals=skullTotals();
+  let cumulative=names().map(pl=>`<div class="stat"><span>${esc(pl)}</span><b>${totals[pl]>0?"+":""}${totals[pl]||0}</b></div>`).join("");
+
+  p.innerHTML=`<h3>🏴‍☠️ Skull King · Manche ${r}/10</h3>
+  <div class="round-chip">${r} carte${r>1?"s":""} par joueur</div>
+  <p class="small">Choisis simplement la mise, les plis gagnés et les bonus. Aucun calcul à faire à la main.</p>
+
+  ${names().map((x,i)=>`<div class="calcbox">
+    <b>${avatarOf(x)} ${esc(x)}</b>
+    <div class="formgrid" style="margin-top:10px">
+      <label><span>🎯 Mise</span><select id="skb-${i}">${skOptions(r)}</select></label>
+      <label><span>🏴‍☠️ Plis gagnés</span><select id="skt-${i}">${skOptions(r)}</select></label>
+    </div>
+    <div class="small" style="font-weight:800;margin:12px 0 6px">Bonus remportés</div>
+    <div class="formgrid">
+      <label><span>14 de couleur · +10 chacun</span><select id="sk14-${i}">${skOptions(3)}</select></label>
+      <label class="checkline"><input id="skb14-${i}" type="checkbox"> <span>14 noir · +20</span></label>
+      <label><span>Sirènes prises par pirate · +20</span><select id="skm-${i}">${skOptions(2)}</select></label>
+      <label><span>Pirates pris par Skull King · +30</span><select id="skp-${i}">${skOptions(5)}</select></label>
+      <label class="checkline"><input id="sks-${i}" type="checkbox"> <span>Skull King pris par sirène · +40</span></label>
+    </div>
+  </div>`).join("")}
+
+  <div class="custom-note">
+    <b>Calcul automatique :</b> mise à 0 réussie = +10 × numéro de manche ; mise à 0 ratée = −10 × numéro de manche.
+    Pour une mise de 1 ou plus : mise exacte = +20 par pli annoncé ; sinon −10 par pli d’écart.
+    Les bonus ne comptent que si la mise est réussie.
+  </div>
+
+  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveSkull('${g.id}',${r})">
+    ${r===10?"🏁 Valider la 10e manche et terminer":"Valider la manche "+r}
+  </button>
+
+  <div class="divider"></div>
+  <h3>Score cumulé après ${hist.length} manche${hist.length>1?"s":""}</h3>
+  ${cumulative}`;
+}
+function saveSkull(id,r){
+  let g=games().find(x=>x.id===id),scores={},details={round:r,players:{}};
+
+  for(let i=0;i<names().length;i++){
+    let pl=names()[i],
+        bid=num("skb-"+i),
+        tricks=num("skt-"+i);
+
+    if(bid>r||tricks>r)return toast("Mise ou nombre de plis impossible");
+
+    let exact=bid===tricks,base=0;
+    if(bid===0) base=tricks===0 ? 10*r : -10*r;
+    else base=exact ? 20*bid : -10*Math.abs(bid-tricks);
+
+    let bonus=0;
+    if(exact){
+      bonus += num("sk14-"+i)*10;
+      bonus += document.getElementById("skb14-"+i).checked ? 20 : 0;
+      bonus += num("skm-"+i)*20;
+      bonus += num("skp-"+i)*30;
+      bonus += document.getElementById("sks-"+i).checked ? 40 : 0;
+    }
+
+    scores[pl]=base+bonus;
+    details.players[pl]={bid,tricks,exact,base,bonus,total:base+bonus};
+  }
+
+  state.results.push({
+    gameId:"skullking",
+    gameName:g.name+" · manche "+r,
+    scores,
+    higher:true,
+    date:new Date().toISOString(),
+    details,
+    inProgress:true
+  });
+
+  if(r<10){
+    state.skullRound=r+1;
+    persist();
+    toast("Manche "+r+" enregistrée ✓");
+    renderEngine(g);
+    return;
+  }
+
+  // A Skull King game is ONE complete 10-round game for the evening ranking.
+  let rounds=state.results.filter(x=>x.gameId==="skullking" && x.details && x.details.round && !x.archived);
+  let totals={};names().forEach(pl=>totals[pl]=0);
+  rounds.forEach(x=>Object.entries(x.scores).forEach(([pl,s])=>totals[pl]=(totals[pl]||0)+s));
+  rounds.forEach(x=>x.archived=true);
+
+  state.results.push({
+    gameId:"skullking_finished_"+Date.now(),
+    baseGameId:"skullking",
+    gameName:"Skull King · partie terminée",
+    scores:totals,
+    higher:true,
+    date:new Date().toISOString(),
+    completed:true
+  });
+
+  state.skullRound=1;
+  persist();
+  toast("Partie de Skull King terminée 🏆");
+  showTab("ranking");
+}
 
 function renderRummikub(p,g){p.innerHTML=`<h3>🔴 Fin de manche Rummikub</h3><label><b>Qui a posé sa dernière tuile ?</b><select id="rum-winner">${playerOptions()}</select></label><p class="small">Entre la valeur des tuiles restant en main chez chaque joueur. Le gagnant recevra automatiquement la somme des pénalités adverses.</p>${names().map((x,i)=>`<div class="score-row"><div class="avatar">${avatarOf(x)}</div><div style="flex:1"><b>${esc(x)}</b></div><input id="rum-${i}" type="number" min="0" placeholder="Reste"></div>`).join("")}<button class="btn green" style="width:100%;margin-top:14px" onclick="saveRummikub('${g.id}')">Calculer & enregistrer</button>`}
 function saveRummikub(id){let g=games().find(x=>x.id===id),w=document.getElementById("rum-winner").value,remain={},scores={},sum=0;for(let i=0;i<names().length;i++){let e=document.getElementById("rum-"+i);let v=e.value===""?0:+e.value;remain[names()[i]]=v;if(names()[i]!==w)sum+=v}names().forEach(p=>scores[p]=p===w?sum:-remain[p]);saveResult(g,scores,true,{winner:w,remain})}
@@ -538,6 +651,7 @@ function standings(){
 
  // Completed cumulative games count as one game in the evening ranking.
  state.results.filter(r=>!r.archived).forEach(r=>{
+   if(r.inProgress || (r.gameId==="skullking" && r.details && r.details.round)) return;
    let participants=Object.keys(r.scores||{});
 
    // Team games keep a team result logic: winners get 2, losers 1.

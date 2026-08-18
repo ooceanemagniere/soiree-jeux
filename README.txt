@@ -1,11 +1,14 @@
-SOIRÉE JEUX — FINALE 1.10
+SOIRÉE JEUX — FINALE 1.11
 
-Tarot :
-- Donneur sélectionnable à chaque donne.
-- Ordre de jeu affiché automatiquement.
-- Historique du donneur.
-- Correction des demi-points à 3 et 5 joueurs.
-- À 5 avec partenaire : preneur = 2 parts, partenaire = 1 part, chacun des 3 défenseurs = -1 part.
-- À 5 seul contre 4 : preneur = 4 parts, chaque défenseur = -1 part.
-- Contrôle automatique : somme des scores = 0.
+Skull King revu :
+- Une partie = 10 manches.
+- Après chaque manche, passage automatique à la suivante avec cumul visible.
+- Les manches intermédiaires ne comptent plus séparément dans le classement général.
+- Après la 10e manche, le total de la partie est ajouté au classement général comme UNE partie.
+- Mise et plis via menus : pas de saisie manuelle.
+- Bonus via compteurs/cases à cocher.
+- Mise 0 réussie : +10 × manche ; ratée : -10 × manche.
+- Mise >= 1 exacte : +20 × mise ; ratée : -10 × écart.
+- Bonus seulement si mise exacte.
+- Bonus : 14 couleur +10, 14 noir +20, sirène prise par pirate +20, pirate pris par Skull King +30, Skull King pris par sirène +40.
 - JavaScript vérifié.
