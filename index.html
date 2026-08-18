@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Soirée Jeux</title>
+<meta name="theme-color" content="#ff7f50">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Soirée Jeux">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f5f1ea;--card:#fffaf5;--ink:#27231f;--muted:#7c746b;--accent:#ff7f50;--green:#5d9274;--line:#e7ddd2;--shadow:0 10px 30px rgba(57,43,32,.08);--r:22px}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{max-width:960px;margin:auto;min-height:100vh;padding:18px 18px 100px}.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 18px}.brand{font-weight:900;font-size:24px;letter-spacing:-.7px}.brand span{color:var(--accent)}.pill{background:#fff;padding:8px 12px;border-radius:999px;font-size:13px;box-shadow:var(--shadow)}
+.hero{background:linear-gradient(135deg,#fff8ef,#fff);border:1px solid var(--line);border-radius:30px;padding:26px;box-shadow:var(--shadow);margin-bottom:18px}.hero h1{font-size:34px;line-height:1.05;margin:0 0 8px;letter-spacing:-1.3px}.hero p{margin:0;color:var(--muted);max-width:680px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}.card h2,.card h3{margin-top:0}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{padding:12px 16px;border-radius:14px;font-weight:800;background:var(--ink);color:white}.btn.alt{background:white;color:var(--ink);border:1px solid var(--line)}.btn.accent{background:var(--accent)}.btn.green{background:var(--green)}.btn.danger{background:#a95d59}.small{font-size:13px;color:var(--muted)}
+.field,.player-row input,.score-row input,select,textarea{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:13px;background:white;color:var(--ink)}textarea{min-height:90px;resize:vertical}.player-row,.score-row{display:flex;gap:8px;align-items:center;margin:8px 0}.score-row input{max-width:115px}.avatar{width:36px;height:36px;border-radius:50%;background:#f5d8c8;display:flex;align-items:center;justify-content:center;font-weight:900;flex:0 0 auto}
+.game-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.game{background:white;border:1px solid var(--line);border-radius:18px;padding:15px;transition:.15s;text-align:left}.game:hover{transform:translateY(-1px)}.game .emoji{font-size:28px}.tag{display:inline-flex;padding:5px 8px;border-radius:999px;background:#f1ece6;color:#625a52;font-size:12px;margin-top:8px}.tag.auto{background:#eef6f1;color:#436d56}.hidden{display:none!important}.rule{padding:12px 0;border-bottom:1px dashed var(--line)}.rule:last-child{border-bottom:0}.rule b{display:block;margin-bottom:4px}
+.nav{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(600px,calc(100% - 28px));background:rgba(39,35,31,.95);backdrop-filter:blur(16px);border-radius:18px;padding:8px;display:flex;justify-content:space-around;box-shadow:0 10px 30px rgba(0,0,0,.18);z-index:20}.nav button{background:transparent;color:#d9d2ca;padding:9px 12px;border-radius:12px;font-size:12px;font-weight:800}.nav button.active{background:white;color:var(--ink)}
+.stat{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}.rank{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:16px;background:white;margin:8px 0}.rank .pos{font-size:22px;font-weight:900;width:34px}.rank .pts{margin-left:auto;font-weight:900}.badge{font-size:12px;border-radius:999px;padding:5px 8px;background:#eef6f1;color:#436d56}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:18px}.section-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:20px 0 10px}.section-title h2{margin:0}.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);background:#24211e;color:white;border-radius:999px;padding:10px 14px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:50}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.formgrid label{font-size:13px;font-weight:800}.formgrid label span{display:block;margin-bottom:5px}.calcbox{background:#f7f3ee;border:1px solid var(--line);border-radius:16px;padding:12px;margin:12px 0}.round-chip{display:inline-flex;padding:7px 10px;background:#fff;border:1px solid var(--line);border-radius:999px;font-weight:800;font-size:13px}.divider{height:1px;background:var(--line);margin:16px 0}.custom-note{padding:10px 12px;border-left:4px solid var(--accent);background:#fff5ef;border-radius:8px;font-size:13px}
+.avatar.big{width:58px;height:58px;font-size:30px;background:#fff;border:2px solid var(--line)}
+
+.scoreboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:12px 0}
+.scoretile{background:white;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.scoretile .bigscore{font-size:25px;font-weight:900}
+.quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+@media(max-width:760px){.grid,.game-list,.formgrid{grid-template-columns:1fr}.hero h1{font-size:29px}.app{padding-left:12px;padding-right:12px}}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<div class="app">
+<div class="top"><div class="brand">Soirée<span>Jeux</span> 🎲</div><div class="pill">V4.1 · compagnon de soirée</div></div>
+
+<section id="home">
+<div class="hero"><h1>Une soirée. Plein de jeux.<br>Un seul champion. 🏆</h1><p>Les règles essentielles, les calculs de manche et le classement familial sont réunis au même endroit.</p><div class="actions" style="margin-top:18px"><button class="btn accent" onclick="showTab('players')">Préparer les joueurs</button><button class="btn alt" onclick="showTab('games')">Choisir un jeu</button></div></div>
+<div class="grid"><div class="card"><h3>🎮 Parties</h3><div style="font-size:34px;font-weight:900" id="homeGames">0</div><div class="small">enregistrées ce soir</div></div><div class="card"><h3>👥 Joueurs</h3><div style="font-size:34px;font-weight:900" id="homePlayers">0</div><div class="small">dans la soirée</div></div></div>
+<div class="section-title"><h2>Podium actuel</h2><span class="small">tous les jeux réunis</span></div><div id="miniRanking"></div>
+</section>
+
+<section id="players" class="hidden"><div class="section-title"><h2>Les joueurs 👥</h2><span class="small">Modifiable à tout moment</span></div><div class="card"><div id="playersList"></div><div class="actions" style="margin-top:12px"><button class="btn alt" onclick="addPlayer()">+ Ajouter</button><button class="btn accent" onclick="savePlayers()">Enregistrer</button></div></div></section>
+
+<section id="games" class="hidden">
+<div class="section-title"><h2>Bibliothèque de jeux 🎲</h2><button class="btn accent" onclick="showTab('addGame')">+ Mon jeu</button></div>
+<div class="game-list" id="gamesList"></div>
+</section>
+
+<section id="addGame" class="hidden">
+<button class="btn alt" onclick="showTab('games')" style="margin-bottom:12px">← Retour</button>
+<div class="card"><h2>Ajouter mon propre jeu ✨</h2><p class="small">Il sera enregistré uniquement sur cet appareil.</p>
+<div class="formgrid">
+<label><span>Nom</span><input class="field" id="cg-name" placeholder="Ex. Belote"></label>
+<label><span>Emoji</span><input class="field" id="cg-emoji" value="🎲"></label>
+<label><span>Nombre min. de joueurs</span><input class="field" id="cg-min" type="number" value="2"></label>
+<label><span>Nombre max. de joueurs</span><input class="field" id="cg-max" type="number" value="8"></label>
+<label><span>Le meilleur score est…</span><select id="cg-dir"><option value="high">Le plus élevé</option><option value="low">Le plus faible</option></select></label>
+<label><span>Type</span><input class="field" id="cg-type" placeholder="cartes, dés, plateau…"></label>
+</div>
+<label><b>Règles express</b><textarea id="cg-rules" placeholder="Mise en place, objectif, règles importantes…"></textarea></label>
+<button class="btn green" style="margin-top:12px" onclick="saveCustomGame()">Ajouter à ma bibliothèque</button>
+</div>
+</section>
+
+<section id="gameDetail" class="hidden"><button class="btn alt" onclick="showTab('games')" style="margin-bottom:12px">← Retour</button><div id="gameDetailContent"></div></section>
+
+<section id="ranking" class="hidden"><div class="section-title"><h2>Classement général 🏆</h2><span class="small">normalisé entre les jeux</span></div><div id="rankingList"></div><div class="section-title"><h2>Stats de la soirée</h2></div><div class="card" id="stats"></div><div class="actions" style="margin-top:12px"><button class="btn accent" onclick="showTab('games')">🎲 Jouer / rejouer</button><button class="btn alt" onclick="showTab('players')">👥 Modifier les joueurs</button><button class="btn alt" onclick="resetSession()">Nouvelle soirée</button></div></section>
+</div>
+
+<div class="nav"><button id="nav-home" class="active" onclick="showTab('home')">🏠<br>Accueil</button><button id="nav-players" onclick="showTab('players')">👥<br>Joueurs</button><button id="nav-games" onclick="showTab('games')">🎲<br>Jeux</button><button id="nav-ranking" onclick="showTab('ranking')">🏆<br>Classement</button></div>
+
+<script>
+const builtins=[
+{id:"skullking",name:"Skull King",emoji:"🏴‍☠️",min:2,max:8,type:"plis",engine:"skullking",higher:true,setup:"10 manches. À la manche 1 : 1 carte par joueur, puis 2, 3… jusqu’à 10.",goal:"Annoncer exactement le nombre de plis que tu vas remporter.",turn:"Chaque joueur annonce son pari. Les plis sont ensuite joués avec couleurs, atout noir et personnages spéciaux.",score:"L’appli calcule les points de pari, le zéro et les bonus de captures."},
+{id:"skyjo",name:"Skyjo",emoji:"🔢",min:2,max:8,type:"cartes",engine:"skyjo",higher:false,setup:"12 cartes par joueur, face cachée, en grille de 4 colonnes × 3 lignes. Chacun retourne 2 cartes.",goal:"Terminer la partie avec le moins de points possible.",turn:"Piocher ou prendre la défausse, échanger une carte ou révéler une carte. Trois cartes identiques dans une colonne sont défaussées.",score:"Tu entres le total brut de chaque joueur et indiques qui a fermé la manche. L’appli applique automatiquement le doublement éventuel."},
+{id:"tarot",name:"Tarot",emoji:"🃏",min:3,max:5,type:"plis",engine:"tarot",higher:true,setup:"Le Tarot se joue en plusieurs donnes. L’application garde désormais l’historique des manches et le cumul de chaque joueur.",goal:"Le preneur doit atteindre le seuil correspondant à son nombre de bouts.",turn:"Enchères, chien/écart selon le contrat, puis jeu des plis.",score:"Entre les informations de la donne ; l’application calcule le score, l’ajoute à l’historique et affiche le classement cumulé."},
+{id:"dominos",name:"Dominos",emoji:"🁫",min:2,max:6,type:"tuiles",engine:"directLow",higher:false,setup:"Distribuez les dominos selon votre variante et placez le reste en pioche s’il y en a une.",goal:"Être le premier à poser tous ses dominos ou terminer avec le moins de points en main.",turn:"Poser une tuile dont une extrémité correspond à une extrémité libre.",score:"Entre les points restant en main : le plus petit total est considéré gagnant."},
+{id:"nainjaune",name:"Nain Jaune",emoji:"🟡",min:3,max:8,type:"cartes",engine:"directHigh",higher:true,setup:"Installez le plateau, les mises sur les cases et distribuez les cartes selon le nombre de joueurs.",goal:"Se débarrasser de ses cartes en suites et récupérer les mises des cartes remarquables.",turn:"Le joueur pose une suite montante aussi longtemps qu’il le peut puis annonce la carte attendue.",score:"Entre le gain net de chaque joueur à la fin de la partie."},
+{id:"rummikub",name:"Rummikub",emoji:"🔴",min:2,max:4,type:"tuiles",engine:"rummikub",higher:true,setup:"14 tuiles par joueur. Le reste forme la pioche.",goal:"Être le premier à poser toutes ses tuiles en groupes et suites valides.",turn:"Après une première pose d’au moins 30 points, on peut ajouter et réorganiser les combinaisons sur la table.",score:"Entre la valeur des tuiles restant chez chaque perdant : l’appli attribue le total positif au gagnant et les valeurs négatives aux autres."},
+{id:"triominos",name:"Triominos",emoji:"🔺",min:2,max:6,type:"tuiles",engine:"directHigh",higher:true,setup:"Chaque joueur prend ses Triominos selon la règle de votre édition, le reste forme la pioche.",goal:"Marquer le plus de points en faisant correspondre les chiffres des côtés.",turn:"Pose une tuile compatible. Les figures particulières peuvent donner des bonus.",score:"Entre les points de manche indiqués par le jeu ; le cumul est automatique."},
+{id:"septfamilles",name:"7 familles",emoji:"👨‍👩‍👧‍👦",min:2,max:6,type:"cartes",engine:"directHigh",higher:true,setup:"Distribuez les cartes. Chaque joueur regroupe ses cartes par famille.",goal:"Réunir le plus de familles complètes.",turn:"Demande à un joueur une carte précise d’une famille dont tu possèdes déjà au moins une carte.",score:"Entre le nombre de familles remportées."},
+{id:"yams",name:"Yams",emoji:"🎲",min:2,max:8,type:"dés",engine:"yams",higher:true,setup:"5 dés. Chaque joueur dispose de jusqu’à 3 lancers à son tour en conservant les dés souhaités.",goal:"Remplir la feuille de score et obtenir le total le plus élevé.",turn:"Après au maximum 3 lancers, inscris le résultat dans une catégorie encore libre.",score:"Feuille de score intégrée : l’appli additionne automatiquement les catégories et le bonus supérieur."},
+{id:"dobble",name:"Dobble",emoji:"👁️",min:2,max:8,type:"observation",engine:"winner",higher:true,setup:"Prenez le mini-jeu Dobble que vous souhaitez jouer et préparez les cartes selon sa règle.",goal:"Repérer le symbole identique entre deux cartes plus vite que les autres.",turn:"Le principe dépend du mini-jeu choisi, mais repose toujours sur le symbole commun entre deux cartes.",score:"Sélectionne simplement le gagnant de la partie."},
+{id:"timebomb",name:"TimeBomb",emoji:"💣",min:4,max:8,type:"rôles cachés",engine:"teams",higher:true,setup:"Distribuez secrètement les rôles Sherlock/Moriarty et les câbles selon le nombre de joueurs.",goal:"Sherlock doit désamorcer la bombe ; Moriarty doit la faire exploser ou empêcher le désamorçage.",turn:"À chaque tour, les joueurs discutent puis coupent des câbles chez les autres joueurs.",score:"À la fin, indique le rôle de chacun et l’équipe gagnante. Tous les membres de l’équipe gagnante reçoivent la victoire."},
+{id:"traitresabord",name:"Traîtres à bord",emoji:"🏴‍☠️",min:3,max:8,type:"rôles cachés",engine:"teams",higher:true,setup:"Chaque joueur reçoit secrètement un rôle : Pirate ou Mutin/Traître selon votre édition.",goal:"Les pirates cherchent à remplir le coffre et éliminer les mutins ; les mutins sabotent et tentent de faire échouer les pirates.",turn:"Jouez les cartes Butin et Action en gardant votre rôle secret aussi longtemps que possible.",score:"À la fin, indique l’équipe de chaque joueur et quelle équipe a gagné."},
+{id:"dekal",name:"DEKAL",emoji:"🟦",min:2,max:6,type:"cartes",engine:"roundLow",higher:false,setup:"Chaque joueur construit et réorganise sa grille selon les règles de DEKAL.",goal:"Terminer avec le moins de points possible. Les cartes adjacentes de même valeur peuvent s’annuler en fin de partie.",turn:"Choisis et insère les cartes de façon à optimiser ta grille.",score:"Entre le total final de chaque joueur : le plus petit score gagne."},
+{id:"flip7",name:"Flip 7",emoji:"7️⃣",min:3,max:18,type:"stop ou encore",engine:"flip7",higher:true,setup:"Une manche se joue en révélant progressivement des cartes. Un doublon de nombre fait sauter la manche du joueur concerné.",goal:"Cumuler des points sur plusieurs manches. Quand au moins un joueur atteint 200 points à la fin d’une manche, le plus haut total gagne.",turn:"À ton tour, choisis de continuer ou t’arrêter. Les modificateurs peuvent augmenter ton score.",score:"Calculateur par manche : somme des nombres, ×2 éventuel, bonus +2/+4/+6/+8/+10 et bonus Flip 7 de +15."},
+{id:"sixquiprend",name:"6 qui prend !",emoji:"🐮",min:2,max:10,type:"cartes",engine:"directLow",higher:false,setup:"10 cartes par joueur et 4 cartes pour démarrer quatre rangées.",goal:"Récupérer le moins de têtes de bœuf possible.",turn:"Tout le monde choisit une carte en secret, puis les cartes sont placées en ordre croissant. La 6e carte oblige à ramasser.",score:"Entre les têtes de bœuf récoltées : le plus petit total gagne."},
+{id:"uno",name:"UNO",emoji:"🌈",min:2,max:10,type:"cartes",engine:"winner",higher:true,setup:"7 cartes par joueur, une pioche et une défausse.",goal:"Être le premier à ne plus avoir de cartes.",turn:"Même couleur, même chiffre ou même symbole ; sinon pioche.",score:"Sélectionne le gagnant de la manche."},
+{id:"trio",name:"Trio",emoji:"🃏",min:3,max:6,type:"mémoire",engine:"winner",higher:true,setup:"Distribuez les cartes selon le nombre de joueurs et placez les restantes au centre.",goal:"Obtenir trois trios ou le trio de 7 selon la règle standard.",turn:"Révéler des cartes accessibles en cherchant trois valeurs identiques.",score:"Sélectionne le gagnant."}
+];
+
+let state=JSON.parse(localStorage.getItem("soireeJeuxFinal")||"null")||{players:[{name:"Océane"},{name:"Martin"},{name:"Papi"},{name:"Mamie"}],results:[],customGames:[],skullRound:1,completedGames:[]};
+if(state.players.length && typeof state.players[0]==="string") state.players=state.players.map(name=>({name}));
+function names(){return state.players.map(p=>p.name)}
+function avatarOf(name){return initials(name)}
+function persist(){localStorage.setItem("soireeJeuxFinal",JSON.stringify(state));renderAll()}
+function games(){return [...builtins,...(state.customGames||[])]}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function initials(n){return (n||"?").trim().slice(0,1).toUpperCase()}
+function toast(m){let t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
+function showTab(id){["home","players","games","addGame","gameDetail","ranking"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");["home","players","games","ranking"].forEach(x=>document.getElementById("nav-"+x)?.classList.toggle("active",x===id));if(id==="players")renderPlayers();if(id==="games")renderGames();if(id==="ranking")renderRanking();if(id==="home")renderHome();window.scrollTo({top:0,behavior:"smooth"})}
+function renderPlayers(){
+ let e=document.getElementById("playersList");e.innerHTML="";
+ if(!state.players.length)state.players=[{name:""}];
+ state.players.forEach((p,i)=>{
+   e.innerHTML+=`<div class="player-row"><div class="avatar">${initials(p.name)}</div><input value="${esc(p.name)}" placeholder="Prénom" oninput="state.players[${i}].name=this.value;this.previousElementSibling.textContent=initials(this.value)"><button class="btn alt" onclick="removePlayer(${i})">×</button></div>`;
+ });
+}
+function addPlayer(){state.players.push({name:""});renderPlayers()}
+function removePlayer(i){state.players.splice(i,1);renderPlayers()}
+function savePlayers(){
+ state.players=state.players.map(p=>({name:p.name.trim()})).filter(p=>p.name);
+ if(names().length<2)return toast("Ajoute au moins 2 joueurs");
+ persist();toast("Joueurs enregistrés ✓");showTab("games")
+}
+function renderGames(){let e=document.getElementById("gamesList");e.innerHTML="";games().forEach(g=>{e.innerHTML+=`<button class="game" onclick="openGame('${g.id}')"><div class="emoji">${g.emoji}</div><b>${esc(g.name)}</b><div class="small">${g.min}–${g.max} joueurs</div><span class="tag">${esc(g.type)}</span>${["skullking","skyjo","tarot","rummikub","yams","flip7"].includes(g.engine)?'<span class="tag auto">calcul auto</span>':""}</button>`})}
+function saveCustomGame(){let name=document.getElementById("cg-name").value.trim();if(!name)return toast("Donne un nom au jeu");let dir=document.getElementById("cg-dir").value;state.customGames.push({id:"custom_"+Date.now(),name,emoji:document.getElementById("cg-emoji").value||"🎲",min:+document.getElementById("cg-min").value||2,max:+document.getElementById("cg-max").value||8,type:document.getElementById("cg-type").value||"personnalisé",engine:dir==="high"?"directHigh":"directLow",higher:dir==="high",setup:document.getElementById("cg-rules").value||"Règles personnalisées.",goal:"Selon vos règles.",turn:"Selon vos règles.",score:"Entre le score final de chaque joueur."});persist();toast("Jeu ajouté ✨");showTab("games")}
+
+function baseRules(g){return `<div class="hero"><div style="font-size:44px">${g.emoji}</div><h1 style="margin-top:5px">${esc(g.name)}</h1><p>${g.min} à ${g.max} joueurs · ${state.results.filter(r=>r.gameId===g.id && !r.archived).length} partie(s) enregistrée(s)</p></div><div class="quickbar"><button class="btn accent" onclick="openGame(gCurrentId)">↻ Rejouer / nouvelle partie</button><button class="btn alt" onclick="showTab('players')">👥 Modifier les joueurs</button></div><div class="grid"><div class="card"><h3>⚡ Règles express</h3><div class="rule"><b>1. Mise en place</b>${esc(g.setup)}</div><div class="rule"><b>2. But</b>${esc(g.goal)}</div><div class="rule"><b>3. Déroulement</b>${esc(g.turn)}</div><div class="rule"><b>4. Score</b>${esc(g.score)}</div></div><div class="card" id="scorePanel"></div></div>`}
+let gCurrentId=null;function openGame(id){gCurrentId=id;let g=games().find(x=>x.id===id);document.getElementById("gameDetailContent").innerHTML=baseRules(g);renderEngine(g);showTab("gameDetail")}
+function playerOptions(includeNone=false){return (includeNone?'<option value="">—</option>':"")+names().map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join("")}
+function num(id,def=0){let e=document.getElementById(id);return e&&e.value!==""?Number(e.value):def}
+
+function renderEngine(g){
+ let p=document.getElementById("scorePanel");
+ if(g.engine==="skullking")return renderSkullKing(p,g);
+ if(g.engine==="skyjo")return renderSkyjo(p,g);
+ if(g.engine==="tarot")return renderTarot(p,g);
+ if(g.engine==="rummikub")return renderRummikub(p,g);
+ if(g.engine==="yams")return renderYams(p,g);
+ if(g.engine==="teams")return renderTeams(p,g);
+ if(g.engine==="flip7")return renderFlip7(p,g);
+ if(g.engine==="roundLow")return renderRoundLow(p,g);
+ if(g.engine==="winner")return p.innerHTML=`<h3>🏁 Gagnant</h3><label><b>Qui a gagné ?</b><select id="winner">${playerOptions()}</select></label><button class="btn green" style="width:100%;margin-top:14px" onclick="saveWinner('${g.id}')">Valider</button>`;
+ return renderDirect(p,g);
+}
+function renderDirect(p,g){p.innerHTML=`<h3>✍️ Scores</h3>${names().map((x,i)=>`<div class="score-row"><div class="avatar">${avatarOf(x)}</div><div style="flex:1"><b>${esc(x)}</b></div><input id="direct-${i}" type="number" step="1" placeholder="Score"></div>`).join("")}<div class="small">${g.higher?"Le score le plus élevé gagne.":"Le score le plus faible gagne."}</div><button class="btn green" style="width:100%;margin-top:14px" onclick="saveDirect('${g.id}')">Valider la partie</button>`}
+function saveDirect(id){let g=games().find(x=>x.id===id),scores={};for(let i=0;i<names().length;i++){let e=document.getElementById("direct-"+i);if(e.value==="")return toast("Il manque un score");scores[names()[i]]=+e.value}saveResult(g,scores,g.higher)}
+function saveWinner(id){let g=games().find(x=>x.id===id),w=document.getElementById("winner").value,scores={};names().forEach(p=>scores[p]=p===w?1:0);saveResult(g,scores,true)}
+
+function renderSkyjo(p,g){p.innerHTML=`<h3>🔢 Fin de manche Skyjo</h3><p class="small">Entre simplement la somme visible de chaque grille avant pénalité.</p><label><b>Qui a retourné sa dernière carte en premier ?</b><select id="sky-stopper">${playerOptions()}</select></label><div class="divider"></div>${names().map((x,i)=>`<div class="score-row"><div class="avatar">${avatarOf(x)}</div><div style="flex:1"><b>${esc(x)}</b></div><input id="sky-${i}" type="number" step="1" placeholder="Brut"></div>`).join("")}<div class="custom-note">Si la personne qui ferme n’a pas strictement le plus petit total (égalité comprise), son score positif de la manche est doublé automatiquement.</div><button class="btn green" style="width:100%;margin-top:14px" onclick="saveSkyjo('${g.id}')">Calculer & enregistrer</button>`}
+function saveSkyjo(id){let g=games().find(x=>x.id===id),stop=document.getElementById("sky-stopper").value,raw={};for(let i=0;i<names().length;i++){let e=document.getElementById("sky-"+i);if(e.value==="")return toast("Il manque un total");raw[names()[i]]=+e.value}let min=Math.min(...Object.values(raw)),scores={...raw};if(raw[stop]>=min && raw[stop]>0){let strictlyAlone=raw[stop]<Math.min(...Object.entries(raw).filter(([p])=>p!==stop).map(([,v])=>v));if(!strictlyAlone)scores[stop]=raw[stop]*2}saveResult(g,scores,false,{raw,stopper:stop});}
+
+function renderSkullKing(p,g){let r=Math.min(10,Math.max(1,state.skullRound||1));p.innerHTML=`<h3>🏴‍☠️ Manche Skull King</h3><div class="round-chip">Manche ${r} · ${r} carte${r>1?"s":""}</div><p class="small">Pour chaque joueur : pari, plis réellement gagnés et éventuels bonus capturés.</p><div id="skRows">${names().map((x,i)=>`<div class="calcbox"><b>${avatarOf(x)} ${esc(x)}</b><div class="formgrid" style="margin-top:9px"><label><span>Pari</span><input class="field" id="skb-${i}" type="number" min="0" max="${r}" value="0"></label><label><span>Plis gagnés</span><input class="field" id="skt-${i}" type="number" min="0" max="${r}" value="0"></label><label><span>14 couleurs (+10)</span><input class="field" id="sk14-${i}" type="number" min="0" max="3" value="0"></label><label><span>14 noir (+20)</span><input class="field" id="skb14-${i}" type="number" min="0" max="1" value="0"></label><label><span>Sirènes prises par pirate (+20)</span><input class="field" id="skm-${i}" type="number" min="0" value="0"></label><label><span>Pirates pris par Skull King (+30)</span><input class="field" id="skp-${i}" type="number" min="0" value="0"></label><label><span>Skull King pris par sirène (+40)</span><input class="field" id="sks-${i}" type="number" min="0" max="1" value="0"></label></div></div>`).join("")}</div><div class="custom-note">Les bonus ne sont comptés que si le pari est réussi. Pari 0 réussi : +10 × n° de manche. Pari 0 raté : −10 × n° de manche.</div><button class="btn green" style="width:100%;margin-top:14px" onclick="saveSkull('${g.id}',${r})">Calculer la manche</button>`}
+function saveSkull(id,r){let g=games().find(x=>x.id===id),scores={},details={round:r,players:{}};for(let i=0;i<names().length;i++){let p=names()[i],bid=num("skb-"+i),tricks=num("skt-"+i);if(bid>r||tricks>r)return toast("Pari/plis impossibles pour cette manche");let exact=bid===tricks,base;if(bid===0)base=tricks===0?10*r:-10*r;else base=exact?20*tricks:-10*Math.abs(bid-tricks);let bonus=0;if(exact)bonus=num("sk14-"+i)*10+num("skb14-"+i)*20+num("skm-"+i)*20+num("skp-"+i)*30+num("sks-"+i)*40;scores[p]=base+bonus;details.players[p]={bid,tricks,base,bonus}}state.skullRound=r>=10?1:r+1;saveResult(g,scores,true,details)}
+
+function renderRummikub(p,g){p.innerHTML=`<h3>🔴 Fin de manche Rummikub</h3><label><b>Qui a posé sa dernière tuile ?</b><select id="rum-winner">${playerOptions()}</select></label><p class="small">Entre la valeur des tuiles restant en main chez chaque joueur. Le gagnant recevra automatiquement la somme des pénalités adverses.</p>${names().map((x,i)=>`<div class="score-row"><div class="avatar">${avatarOf(x)}</div><div style="flex:1"><b>${esc(x)}</b></div><input id="rum-${i}" type="number" min="0" placeholder="Reste"></div>`).join("")}<button class="btn green" style="width:100%;margin-top:14px" onclick="saveRummikub('${g.id}')">Calculer & enregistrer</button>`}
+function saveRummikub(id){let g=games().find(x=>x.id===id),w=document.getElementById("rum-winner").value,remain={},scores={},sum=0;for(let i=0;i<names().length;i++){let e=document.getElementById("rum-"+i);let v=e.value===""?0:+e.value;remain[names()[i]]=v;if(names()[i]!==w)sum+=v}names().forEach(p=>scores[p]=p===w?sum:-remain[p]);saveResult(g,scores,true,{winner:w,remain})}
+
+const yCats=[["ones","As"],["twos","Deux"],["threes","Trois"],["fours","Quatre"],["fives","Cinq"],["sixes","Six"],["three","Brelan"],["four","Carré"],["full","Full"],["small","Petite suite"],["large","Grande suite"],["yams","Yams"],["chance","Chance"]];
+function renderYams(p,g){p.innerHTML=`<h3>🎲 Feuille Yams</h3><p class="small">Entre les points obtenus dans chaque catégorie. Le bonus de +35 est ajouté si la partie supérieure atteint 63 points.</p>${names().map((pl,i)=>`<div class="calcbox"><b>${esc(pl)}</b><div class="formgrid" style="margin-top:8px">${yCats.map(([id,n])=>`<label><span>${n}</span><input class="field" id="y-${i}-${id}" type="number" min="0" value="0"></label>`).join("")}</div></div>`).join("")}<button class="btn green" style="width:100%;margin-top:14px" onclick="saveYams('${g.id}')">Calculer & enregistrer</button>`}
+function saveYams(id){let g=games().find(x=>x.id===id),scores={},details={};names().forEach((p,i)=>{let upper=["ones","twos","threes","fours","fives","sixes"].reduce((a,c)=>a+num(`y-${i}-${c}`),0),lower=["three","four","full","small","large","yams","chance"].reduce((a,c)=>a+num(`y-${i}-${c}`),0),bonus=upper>=63?35:0;scores[p]=upper+lower+bonus;details[p]={upper,lower,bonus}});saveResult(g,scores,true,details)}
+
+function tarotHistory(){
+  return state.results.filter(r=>r.gameId==="tarot" && !r.archived);
+}
+function tarotTotals(){
+  let t={}; names().forEach(p=>t[p]=0);
+  tarotHistory().forEach(r=>Object.entries(r.scores).forEach(([p,s])=>t[p]=(t[p]||0)+s));
+  return t;
+}
+function renderTarot(p,g){
+  let n=names().length, hist=tarotHistory(), totals=tarotTotals();
+  let historyHtml=hist.length?hist.map((r,i)=>{
+    let d=r.details||{};
+    return `<div class="calcbox"><div style="display:flex;justify-content:space-between;gap:10px"><b>Manche ${i+1}</b><span class="small">${esc(d.contractLabel||"Contrat")} · ${esc(d.preneur||"")}</span></div>${Object.entries(r.scores).map(([pl,s])=>`<div class="stat"><span>${esc(pl)}</span><b>${s>0?"+":""}${s}</b></div>`).join("")}</div>`;
+  }).join(""):'<div class="empty">Aucune manche de Tarot enregistrée.</div>';
+  let totalHtml=names().map(pl=>`<div class="stat"><span>${esc(pl)}</span><b>${totals[pl]>0?"+":""}${totals[pl]||0}</b></div>`).join("");
+  if(n!==3&&n!==4){
+    p.innerHTML=`<h3>🃏 Tarot · ${hist.length} manche(s)</h3><div class="empty">Le calcul automatique de cette V3 est prévu pour 3 ou 4 joueurs.</div><h3 style="margin-top:16px">Cumul</h3>${totalHtml}<h3 style="margin-top:16px">Historique</h3>${historyHtml}`;
+    return;
+  }
+  p.innerHTML=`<h3>🃏 Nouvelle manche Tarot</h3>
+  <div class="round-chip">Manche ${hist.length+1}</div>
+  <div class="formgrid" style="margin-top:12px">
+  <label><span>Preneur</span><select id="tar-preneur">${playerOptions()}</select></label>
+  <label><span>Contrat</span><select id="tar-contrat">
+    <option value="1" data-label="Petite">Petite</option>
+    <option value="1" data-label="Pouce">Pouce</option>
+    <option value="2" data-label="Garde">Garde</option>
+    <option value="4" data-label="Garde sans">Garde sans</option>
+    <option value="6" data-label="Garde contre">Garde contre</option>
+  </select></label>
+  <label><span>Nombre de bouts</span><select id="tar-bouts"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
+  <label><span>Points du preneur</span><input class="field" id="tar-points" type="number" step="0.5" value="41"></label>
+  <label><span>Poignée</span><select id="tar-poignee"><option value="0">Aucune</option><option value="20">Simple (+20)</option><option value="30">Double (+30)</option><option value="40">Triple (+40)</option></select></label>
+  <label><span>Poignée montrée par</span><select id="tar-poignee-camp"><option value="attack">Preneur</option><option value="defense">Défense</option></select></label>
+  <label><span>Petit au bout</span><select id="tar-petit"><option value="none">Aucun</option><option value="attack">Preneur</option><option value="defense">Défense</option></select></label>
+  <label><span>Chelem</span><select id="tar-chelem"><option value="0">Aucun</option><option value="400">Annoncé et réussi (+400)</option><option value="200">Non annoncé et réussi (+200)</option><option value="-200">Annoncé mais raté (−200)</option></select></label>
+  <label><span>Misère d’atout</span><select id="tar-misere-atout">${playerOptions(true)}</select></label>
+  <label><span>Misère de tête</span><select id="tar-misere-tete">${playerOptions(true)}</select></label>
+  <label><span>Valeur de chaque misère</span><input class="field" id="tar-misere-val" type="number" value="10" min="0"></label>
+  </div><div class="custom-note">Les misères sont des conventions de table et leur valeur peut varier. Tu peux donc choisir le joueur concerné et régler leur valeur ; +10 est proposé par défaut.</div>
+  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveTarot('${g.id}',${n})">Enregistrer la manche</button>
+  <div class="divider"></div><h3>Cumul de la partie</h3>${totalHtml}
+  <h3 style="margin-top:16px">Historique des manches</h3>${historyHtml}<button class="btn accent" style="width:100%;margin-top:14px" onclick="finishCumulativeGame('tarot')">🏁 Terminer cette partie de Tarot</button>`;
+}
+function saveTarot(id,n){
+  let g=games().find(x=>x.id===id),pr=document.getElementById("tar-preneur").value;
+  let contractEl=document.getElementById("tar-contrat"),coef=Number(contractEl.value),contractLabel=contractEl.options[contractEl.selectedIndex].dataset.label;
+  let bouts=num("tar-bouts"),pts=num("tar-points"),targets=[56,51,41,36],target=targets[bouts],diff=pts-target,won=diff>=0,sign=won?1:-1;
+  let unit=sign*(25+Math.abs(diff))*coef;
+  let poignee=num("tar-poignee"),pc=document.getElementById("tar-poignee-camp").value;if(poignee)unit+=(pc==="attack"?1:-1)*poignee;
+  let petit=document.getElementById("tar-petit").value;if(petit!=="none")unit+=(petit==="attack"?1:-1)*10*coef;
+  unit+=num("tar-chelem");
+  let scores={};names().forEach(p=>scores[p]=p===pr?unit*(n-1):-unit);
+  let misereVal=num("tar-misere-val",10),ma=document.getElementById("tar-misere-atout").value,mt=document.getElementById("tar-misere-tete").value;
+  [ma,mt].filter(Boolean).forEach(benef=>{names().forEach(p=>{if(p===benef)scores[p]+=misereVal*(n-1);else scores[p]-=misereVal})});
+  saveResult(g,scores,true,{preneur:pr,coef,contractLabel,bouts,pts,target,unit,misereAtout:ma,misereTete:mt,misereVal});
+}
+
+
+function renderTeams(p,g){
+  p.innerHTML=`<h3>🕵️ Résultat de la partie</h3><p class="small">Attribue le camp réel de chacun, puis indique quel camp a gagné.</p>
+  ${names().map((pl,i)=>`<div class="score-row"><div class="avatar">${initials(pl)}</div><div style="flex:1"><b>${esc(pl)}</b></div><select id="team-${i}" style="max-width:170px"><option value="blue">🔵 Bleu / gentil</option><option value="red">🔴 Rouge / traître</option></select></div>`).join("")}
+  <div class="divider"></div><label><b>Équipe gagnante</b><select id="teamWinner"><option value="blue">🔵 Bleus / gentils</option><option value="red">🔴 Rouges / traîtres</option></select></label>
+  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveTeams('${g.id}')">Enregistrer le résultat</button>`;
+}
+function saveTeams(id){
+  let g=games().find(x=>x.id===id),winner=document.getElementById("teamWinner").value,scores={},roles={};
+  names().forEach((p,i)=>{let role=document.getElementById("team-"+i).value;roles[p]=role;scores[p]=role===winner?1:0});
+  saveResult(g,scores,true,{roles,winnerTeam:winner});
+}
+function renderRoundLow(p,g){
+  let hist=state.results.filter(r=>r.gameId===g.id && !r.archived),tot={};state.players.forEach(pl=>tot[pl]=0);
+  hist.forEach(r=>Object.entries(r.scores).forEach(([pl,s])=>tot[pl]=(tot[pl]||0)+s));
+  p.innerHTML=`<h3>🧮 ${esc(g.name)} · score</h3><p class="small">Entre les points de chacun. Le cumul est conservé et le plus petit total reste en tête.</p>
+  ${names().map((pl,i)=>`<div class="score-row"><div class="avatar">${initials(pl)}</div><div style="flex:1"><b>${esc(pl)}</b><div class="small">Cumul : ${tot[pl]||0}</div></div><input id="rl-${i}" type="number" value="0"></div>`).join("")}
+  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRoundLow('${g.id}')">Ajouter la manche</button>`;
+}
+function saveRoundLow(id){let g=games().find(x=>x.id===id),scores={};names().forEach((p,i)=>scores[p]=num("rl-"+i));saveResult(g,scores,false,{round:true})}
+
+function flipTotals(){
+ let t={};names().forEach(p=>t[p]=0);
+ state.results.filter(r=>r.gameId==="flip7" && !r.archived).forEach(r=>Object.entries(r.scores).forEach(([p,s])=>t[p]=(t[p]||0)+s));
+ return t;
+}
+function renderFlip7(p,g){
+ let hist=state.results.filter(r=>r.gameId==="flip7" && !r.archived),tot=flipTotals();
+ p.innerHTML=`<h3>7️⃣ Flip 7 · Manche ${hist.length+1}</h3><div class="custom-note">Pour chaque joueur, mets la somme de ses cartes Nombre. S’il a sauté, coche “Bust” : la manche vaut 0. Sinon ajoute ses modificateurs.</div>
+ ${names().map((pl,i)=>`<div class="calcbox"><div style="display:flex;justify-content:space-between"><b>${esc(pl)}</b><span class="small">Total : ${tot[pl]||0}/200</span></div>
+ <div class="formgrid" style="margin-top:9px">
+ <label><span>Somme cartes Nombre</span><input class="field" id="fbase-${i}" type="number" min="0" value="0"></label>
+ <label><span>État</span><select id="fbust-${i}"><option value="no">Score la manche</option><option value="yes">💥 Bust = 0</option></select></label>
+ <label><span>×2</span><select id="fx2-${i}"><option value="0">Non</option><option value="1">Oui</option></select></label>
+ <label><span>Bonus +2</span><input class="field" id="f2-${i}" type="number" min="0" value="0"></label>
+ <label><span>Bonus +4</span><input class="field" id="f4-${i}" type="number" min="0" value="0"></label>
+ <label><span>Bonus +6</span><input class="field" id="f6-${i}" type="number" min="0" value="0"></label>
+ <label><span>Bonus +8</span><input class="field" id="f8-${i}" type="number" min="0" value="0"></label>
+ <label><span>Bonus +10</span><input class="field" id="f10-${i}" type="number" min="0" value="0"></label>
+ <label><span>Flip 7 (+15)</span><select id="ff7-${i}"><option value="0">Non</option><option value="15">Oui</option></select></label>
+ </div></div>`).join("")}
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveFlip7('${g.id}')">Calculer la manche</button><button class="btn alt" style="width:100%;margin-top:8px" onclick="finishCumulativeGame('flip7')">🏁 Terminer cette partie</button>`;
+}
+function saveFlip7(id){
+ let g=games().find(x=>x.id===id),scores={},details={};
+ names().forEach((p,i)=>{
+   let bust=document.getElementById("fbust-"+i).value==="yes",base=num("fbase-"+i),x2=num("fx2-"+i),score=0;
+   if(!bust){score=base;if(x2)score*=2;score+=num("f2-"+i)*2+num("f4-"+i)*4+num("f6-"+i)*6+num("f8-"+i)*8+num("f10-"+i)*10+num("ff7-"+i)}
+   scores[p]=score;details[p]={bust,base,x2,score};
+ });
+ state.results.push({gameId:g.id,gameName:g.name,scores,higher:true,date:new Date().toISOString(),details});
+ persist();
+ let totals=flipTotals(), max=Math.max(...Object.values(totals));
+ if(max>=200) toast("Fin de partie : 200 points atteints 🏆"); else toast("Manche ajoutée ✓");
+ openGame("flip7");
+}
+
+
+function finishCumulativeGame(gameId){
+ let relevant=state.results.filter(r=>r.gameId===gameId && !r.archived),g=games().find(x=>x.id===gameId);
+ if(!relevant.length)return toast("Aucune manche à terminer");
+ let totals={};names().forEach(p=>totals[p]=0);relevant.forEach(r=>Object.entries(r.scores).forEach(([p,s])=>totals[p]=(totals[p]||0)+s));
+ relevant.forEach(r=>r.archived=true);
+ state.results.push({gameId:gameId+"_finished_"+Date.now(),baseGameId:gameId,gameName:g.name+" · partie terminée",scores:totals,higher:g.higher,date:new Date().toISOString(),completed:true});
+ persist();toast("Partie terminée 🏆");showTab("ranking");
+}
+
+function saveResult(g,scores,higher,details={}){state.results.push({gameId:g.id,gameName:g.name,scores,higher,date:new Date().toISOString(),details});persist();toast("Enregistré 🎉");showTab("ranking")}
+
+function standings(){
+ let d={};names().forEach(p=>d[p]={league:0,wins:0,games:0,raw:0});
+ let roundGames=new Set(["tarot","flip7","dekal"]);
+ let handled=new Set();
+ state.results.filter(r=>!r.archived).forEach(r=>{
+   if(roundGames.has(r.gameId)){
+     if(handled.has(r.gameId)) return;
+     handled.add(r.gameId);
+     let relevant=state.results.filter(x=>x.gameId===r.gameId), sums={};names().forEach(p=>sums[p]=0);
+     relevant.forEach(x=>Object.entries(x.scores).forEach(([p,s])=>sums[p]=(sums[p]||0)+s));
+     let high=r.gameId!=="dekal", vals=Object.values(sums),best=high?Math.max(...vals):Math.min(...vals);
+     Object.entries(sums).forEach(([p,s])=>{if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};d[p].games++;d[p].raw+=s;if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1});
+   } else {
+     let vals=Object.values(r.scores),best=r.higher?Math.max(...vals):Math.min(...vals);
+     Object.entries(r.scores).forEach(([p,s])=>{if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};d[p].games++;d[p].raw+=s;if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1});
+   }
+ });
+ return Object.entries(d).map(([name,v])=>({name,...v})).sort((a,b)=>b.league-a.league||b.wins-a.wins||b.raw-a.raw)
+}
+function medal(i){return["🥇","🥈","🥉"][i]||`${i+1}.`}
+function renderRanking(){let e=document.getElementById("rankingList"),s=standings();e.innerHTML=!state.results.length?'<div class="empty">Aucune partie enregistrée.</div>':s.map((x,i)=>`<div class="rank"><div class="pos">${medal(i)}</div><div><b>${esc(x.name)}</b><div class="small">${x.wins} victoire${x.wins>1?"s":""} · ${x.games} partie${x.games>1?"s":""}</div></div><span class="badge">${x.games?Math.round(x.wins/x.games*100):0}% win</span><div class="pts">${x.league} pts</div></div>`).join("");let leader=state.results.length?s[0]:null;
+ let counts={};
+ state.results.forEach(r=>{if(r.archived)return;let key=r.baseGameId||r.gameId.replace(/_finished_.*/,"");let label=(games().find(g=>g.id===key)?.name)||r.gameName.replace(" · partie terminée","");counts[label]=(counts[label]||0)+1});
+ let favEntries=Object.entries(counts).sort((a,b)=>b[1]-a[1]),fav=favEntries.length?favEntries[0]:null;
+ document.getElementById("stats").innerHTML=`<div class="stat"><span>Parties / manches enregistrées</span><b>${state.results.filter(r=>!r.archived).length}</b></div><div class="stat"><span>Jeux différents</span><b>${new Set(state.results.filter(r=>!r.archived).map(r=>r.baseGameId||r.gameId.replace(/_finished_.*/,""))).size}</b></div><div class="stat"><span>🎲 Jeu préféré de la soirée</span><b>${fav?esc(fav[0])+" · "+fav[1]+" partie"+(fav[1]>1?"s":""):"—"}</b></div><div class="stat"><span>Leader</span><b>${leader?esc(leader.name):"—"}</b></div><div class="stat"><span>Barème inter-jeux</span><b>Victoire 3 · participation 1</b></div>`}
+function renderHome(){document.getElementById("homeGames").textContent=state.results.length;document.getElementById("homePlayers").textContent=names().length;let s=standings().slice(0,3);document.getElementById("miniRanking").innerHTML=state.results.length?s.map((x,i)=>`<div class="rank"><div class="pos">${medal(i)}</div><b>${esc(x.name)}</b><div class="pts">${x.league} pts</div></div>`).join(""):'<div class="empty">Le podium apparaîtra après la première partie.</div>'}
+function resetSession(){if(!confirm("Effacer tous les scores de la soirée ? Les jeux personnalisés seront conservés."))return;state.results=[];state.skullRound=1;persist();toast("Nouvelle soirée ✨");showTab("home")}
+function renderAll(){renderHome();renderGames();renderRanking()}
+renderAll();
+</script>
+</body>
+</html>
