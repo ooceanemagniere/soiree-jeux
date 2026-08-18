@@ -248,7 +248,7 @@ function renderSkullKing(p,g){
   <p class="small">Choisis simplement la mise, les plis gagnés et les bonus. Aucun calcul à faire à la main.</p>
 
   ${names().map((x,i)=>`<div class="calcbox">
-    <b>${avatarOf(x)} ${esc(x)}</b>
+    <b>${esc(x)}</b>
     <div class="formgrid" style="margin-top:10px">
       <label><span>🎯 Mise</span><select id="skb-${i}">${skOptions(r)}</select></label>
       <label><span>🏴‍☠️ Plis gagnés</span><select id="skt-${i}">${skOptions(r)}</select></label>
@@ -340,8 +340,8 @@ function saveSkull(id,r){
 
   state.skullRound=1;
   persist();
-  toast("Partie de Skull King terminée 🏆");
-  showTab("ranking");
+  toast("Partie de Skull King terminée 🏆 · prête à rejouer");
+  renderEngine(g);
 }
 
 function renderRummikub(p,g){p.innerHTML=`<h3>🔴 Fin de manche Rummikub</h3><label><b>Qui a posé sa dernière tuile ?</b><select id="rum-winner">${playerOptions()}</select></label><p class="small">Entre la valeur des tuiles restant en main chez chaque joueur. Le gagnant recevra automatiquement la somme des pénalités adverses.</p>${names().map((x,i)=>`<div class="score-row"><div class="avatar">${avatarOf(x)}</div><div style="flex:1"><b>${esc(x)}</b></div><input id="rum-${i}" type="number" min="0" placeholder="Reste"></div>`).join("")}<button class="btn green" style="width:100%;margin-top:14px" onclick="saveRummikub('${g.id}')">Calculer & enregistrer</button>`}
@@ -622,10 +622,10 @@ function finishCumulativeGame(gameId){
  let totals={};names().forEach(p=>totals[p]=0);relevant.forEach(r=>Object.entries(r.scores).forEach(([p,s])=>totals[p]=(totals[p]||0)+s));
  relevant.forEach(r=>r.archived=true);
  state.results.push({gameId:gameId+"_finished_"+Date.now(),baseGameId:gameId,gameName:g.name+" · partie terminée",scores:totals,higher:g.higher,date:new Date().toISOString(),completed:true});
- persist();toast("Partie terminée 🏆");showTab("ranking");
+ persist();toast("Partie terminée 🏆");renderEngine(g);
 }
 
-function saveResult(g,scores,higher,details={}){state.results.push({gameId:g.id,gameName:g.name,scores,higher,date:new Date().toISOString(),details});persist();toast("Enregistré 🎉");showTab("ranking")}
+function saveResult(g,scores,higher,details={}){state.results.push({gameId:g.id,gameName:g.name,scores,higher,date:new Date().toISOString(),details});persist();toast("Partie enregistrée 🎉");renderEngine(g)}
 
 function standings(){
  let d={};names().forEach(p=>d[p]={league:0,wins:0,games:0,raw:0});
