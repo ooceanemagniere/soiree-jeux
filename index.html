@@ -147,17 +147,37 @@ function initials(n){return (n||"?").trim().slice(0,1).toUpperCase()}
 function toast(m){let t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
 function showTab(id){["home","players","games","addGame","gameDetail","ranking"].forEach(x=>document.getElementById(x).classList.add("hidden"));document.getElementById(id).classList.remove("hidden");["home","players","games","ranking"].forEach(x=>document.getElementById("nav-"+x)?.classList.toggle("active",x===id));if(id==="players")renderPlayers();if(id==="games")renderGames();if(id==="ranking")renderRanking();if(id==="home")renderHome();window.scrollTo({top:0,behavior:"smooth"})}
 function isSelectedPlayer(name){return names().includes(name)}
-function togglePlayer(name){
+function togglePlayerByGroup(group,index){
+ let arr=group==="tarot"?state.tarotPlayers:state.savedPlayers;
+ let name=arr[index];
+ if(!name)return;
  if(isSelectedPlayer(name)) state.players=state.players.filter(p=>p.name!==name);
  else state.players.push({name});
  renderPlayers();
 }
 function renderPlayers(){
- let fam=document.getElementById("savedPlayersPool"),tar=document.getElementById("tarotPlayersPool"),e=document.getElementById("playersList");
+ let fam=document.getElementById("savedPlayersPool"),
+     tar=document.getElementById("tarotPlayersPool"),
+     e=document.getElementById("playersList");
  if(!fam||!tar||!e)return;
- fam.innerHTML=state.savedPlayers.map(name=>`<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayer('${esc(name).replace(/&#039;/g,"\\'")}')">${esc(name)}</button>`).join("");
- tar.innerHTML=state.tarotPlayers.map(name=>`<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayer('${esc(name).replace(/&#039;/g,"\\'")}')">${esc(name)}</button>`).join("");
- e.innerHTML=names().length?names().map((name,i)=>`<div class="player-row"><div class="avatar">${initials(name)}</div><div style="flex:1"><b>${esc(name)}</b></div><button class="btn alt" onclick="removePlayer(${i})">×</button></div>`).join(""):'<div class="empty">Aucun joueur sélectionné pour le moment.</div>';
+
+ fam.innerHTML=state.savedPlayers.map((name,i)=>
+   `<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayerByGroup('saved',${i})">${esc(name)}</button>`
+ ).join("");
+
+ tar.innerHTML=state.tarotPlayers.map((name,i)=>
+   `<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayerByGroup('tarot',${i})">${esc(name)}</button>`
+ ).join("");
+
+ e.innerHTML=names().length
+   ? names().map((name,i)=>
+      `<div class="player-row">
+         <div class="avatar">${initials(name)}</div>
+         <div style="flex:1"><b>${esc(name)}</b></div>
+         <button class="btn alt" onclick="removePlayer(${i})">×</button>
+       </div>`
+     ).join("")
+   : '<div class="empty">Aucun joueur sélectionné pour le moment.</div>';
 }
 function addNewSavedPlayer(){
  let input=document.getElementById("newPlayerName"),name=input.value.trim();
