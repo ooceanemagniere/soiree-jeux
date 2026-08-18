@@ -242,7 +242,7 @@ function renderRankingGame(p,g){
  <p class="small">Classe les joueurs dans l’ordre d’arrivée. Le dernier est déduit automatiquement.</p>
  ${selectors}
  <div class="calcbox" style="margin-top:10px"><div class="small">Dernier</div><b id="dobble-last">—</b></div>
- <div class="custom-note">Points de soirée : le 1er reçoit ${n} pt${n>1?"s":""}, puis les points descendent avec le classement. Le dernier reçoit 0 point.</div>
+ <div class="custom-note">Points de soirée : le 1er reçoit ${n} pt${n>1?"s":""}, puis les points descendent jusqu’à 1 point pour le dernier.</div>
  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRankingGame('${g.id}')">Enregistrer le classement</button>`;
 }
 function updateDobbleLast(){
@@ -272,7 +272,7 @@ function saveRankingGame(id){
  // Dobble league points: N points for 1st, descending, with 0 for last.
  let leaguePoints={},scores={};
  Object.entries(ranking).forEach(([pl,rank])=>{
-   let pts = rank===n ? 0 : (n-rank+1);
+   let pts = n-rank+1;
    leaguePoints[pl]=pts;
    scores[pl]=n-rank+1; // preserve ordering in raw result
  });
@@ -350,46 +350,65 @@ function saveResult(g,scores,higher,details={}){state.results.push({gameId:g.id,
 
 function standings(){
  let d={};names().forEach(p=>d[p]={league:0,wins:0,games:0,raw:0});
- let roundGames=new Set(["tarot","flip7","dekal"]);
- let handled=new Set();
+
+ function awardPlacement(scores,higher,participants){
+   let entries=Object.entries(scores).filter(([p])=>participants.includes(p));
+   if(!entries.length)return;
+   let sorted=[...entries].sort((a,b)=>higher?b[1]-a[1]:a[1]-b[1]);
+   let uniqueVals=[...new Set(sorted.map(x=>x[1]))];
+   let rankMap={};
+   uniqueVals.forEach((val,idx)=>rankMap[val]=idx+1);
+   let n=entries.length;
+   entries.forEach(([p,s])=>{
+     if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};
+     let rank=rankMap[s];
+     let pts=Math.max(1,n-rank+1);
+     d[p].games++;
+     d[p].raw+=s;
+     d[p].league+=pts;
+     if(rank===1)d[p].wins++;
+   });
+ }
+
+ // Completed cumulative games count as one game in the evening ranking.
  state.results.filter(r=>!r.archived).forEach(r=>{
-   if(r.details&&r.details.leaguePoints){
-     let lp=r.details.leaguePoints, maxPts=Math.max(...Object.values(lp));
-     Object.entries(lp).forEach(([p,pts])=>{
+   let participants=Object.keys(r.scores||{});
+
+   // Team games keep a team result logic: winners get 2, losers 1.
+   if(r.details && r.details.winnerTeam){
+     Object.entries(r.scores).forEach(([p,s])=>{
        if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};
-       d[p].games++; d[p].league+=pts; d[p].raw+=(r.scores[p]||0);
-       if(pts===maxPts)d[p].wins++;
+       d[p].games++; d[p].raw+=s;
+       if(s>0){d[p].league+=2;d[p].wins++} else d[p].league+=1;
      });
      return;
    }
-   if(roundGames.has(r.gameId)){
-     if(handled.has(r.gameId)) return;
-     handled.add(r.gameId);
-     let relevant=state.results.filter(x=>x.gameId===r.gameId && !x.archived), sums={};names().forEach(p=>sums[p]=0);
-     relevant.forEach(x=>Object.entries(x.scores).forEach(([p,s])=>sums[p]=(sums[p]||0)+s));
-     let high=r.gameId!=="dekal", vals=Object.values(sums),best=high?Math.max(...vals):Math.min(...vals);
-     Object.entries(sums).forEach(([p,s])=>{
+
+   // Explicit placement games (Dobble, etc.) already store ranking.
+   if(r.details && r.details.ranking){
+     let ranking=r.details.ranking,n=Object.keys(ranking).length;
+     Object.entries(ranking).forEach(([p,rank])=>{
        if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};
-       d[p].games++;d[p].raw+=s;
-       if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1
+       let pts=n-rank+1;
+       d[p].games++;d[p].league+=pts;d[p].raw+=(r.scores[p]||0);
+       if(rank===1)d[p].wins++;
      });
-   } else {
-     let vals=Object.values(r.scores),best=r.higher?Math.max(...vals):Math.min(...vals);
-     Object.entries(r.scores).forEach(([p,s])=>{
-       if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};
-       d[p].games++;d[p].raw+=s;
-       if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1
-     });
+     return;
    }
+
+   // All other games with individual scores use their actual placement.
+   awardPlacement(r.scores,r.higher,participants);
  });
- return Object.entries(d).map(([name,v])=>({name,...v})).sort((a,b)=>b.league-a.league||b.wins-a.wins||b.raw-a.raw)
+
+ return Object.entries(d).map(([name,v])=>({name,...v}))
+   .sort((a,b)=>b.league-a.league||b.wins-a.wins||b.raw-a.raw)
 }
 function medal(i){return["🥇","🥈","🥉"][i]||`${i+1}.`}
 function renderRanking(){let e=document.getElementById("rankingList"),s=standings();e.innerHTML=!state.results.length?'<div class="empty">Aucune partie enregistrée.</div>':s.map((x,i)=>`<div class="rank"><div class="pos">${medal(i)}</div><div><b>${esc(x.name)}</b><div class="small">${x.wins} victoire${x.wins>1?"s":""} · ${x.games} partie${x.games>1?"s":""}</div></div><span class="badge">${x.games?Math.round(x.wins/x.games*100):0}% win</span><div class="pts">${x.league} pts</div></div>`).join("");let leader=state.results.length?s[0]:null;
  let counts={};
  state.results.forEach(r=>{if(r.archived)return;let key=r.baseGameId||r.gameId.replace(/_finished_.*/,"");let label=(games().find(g=>g.id===key)?.name)||r.gameName.replace(" · partie terminée","");counts[label]=(counts[label]||0)+1});
  let favEntries=Object.entries(counts).sort((a,b)=>b[1]-a[1]),fav=favEntries.length?favEntries[0]:null;
- document.getElementById("stats").innerHTML=`<div class="stat"><span>Parties / manches enregistrées</span><b>${state.results.filter(r=>!r.archived).length}</b></div><div class="stat"><span>Jeux différents</span><b>${new Set(state.results.filter(r=>!r.archived).map(r=>r.baseGameId||r.gameId.replace(/_finished_.*/,""))).size}</b></div><div class="stat"><span>🎲 Jeu préféré de la soirée</span><b>${fav?esc(fav[0])+" · "+fav[1]+" partie"+(fav[1]>1?"s":""):"—"}</b></div><div class="stat"><span>Leader</span><b>${leader?esc(leader.name):"—"}</b></div><div class="stat"><span>Barème inter-jeux</span><b>Victoire 3 · participation 1</b></div>`}
+ document.getElementById("stats").innerHTML=`<div class="stat"><span>Parties / manches enregistrées</span><b>${state.results.filter(r=>!r.archived).length}</b></div><div class="stat"><span>Jeux différents</span><b>${new Set(state.results.filter(r=>!r.archived).map(r=>r.baseGameId||r.gameId.replace(/_finished_.*/,""))).size}</b></div><div class="stat"><span>🎲 Jeu préféré de la soirée</span><b>${fav?esc(fav[0])+" · "+fav[1]+" partie"+(fav[1]>1?"s":""):"—"}</b></div><div class="stat"><span>Leader</span><b>${leader?esc(leader.name):"—"}</b></div><div class="stat"><span>Barème inter-jeux</span><b>Points dégressifs selon le classement</b></div>`}
 function renderHome(){document.getElementById("homeGames").textContent=state.results.length;document.getElementById("homePlayers").textContent=names().length;let s=standings().slice(0,3);document.getElementById("miniRanking").innerHTML=state.results.length?s.map((x,i)=>`<div class="rank"><div class="pos">${medal(i)}</div><b>${esc(x.name)}</b><div class="pts">${x.league} pts</div></div>`).join(""):'<div class="empty">Le podium apparaîtra après la première partie.</div>'}
 function resetSession(){if(!confirm("Effacer tous les scores de la soirée ? Les jeux personnalisés seront conservés."))return;state.results=[];state.skullRound=1;persist();toast("Nouvelle soirée ✨");showTab("home")}
 function renderAll(){renderHome();renderGames();renderRanking()}
