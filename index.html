@@ -92,7 +92,7 @@ const builtins=[
 {id:"trio",name:"Trio",emoji:"🃏",min:3,max:6,type:"mémoire",engine:"winner",higher:true,setup:"Distribuez les cartes selon le nombre de joueurs et placez les restantes au centre.",goal:"Obtenir trois trios ou le trio de 7 selon la règle standard.",turn:"Révéler des cartes accessibles en cherchant trois valeurs identiques.",score:"Sélectionne le gagnant."}
 ];
 
-let state=JSON.parse(localStorage.getItem("soireeJeuxFinal")||"null")||{players:[{name:"Océane"},{name:"Martin"},{name:"Papi"},{name:"Mamie"}],results:[],customGames:[],skullRound:1,completedGames:[]};
+let state=JSON.parse(localStorage.getItem("soireeJeuxFinal")||"null")||{players:[],results:[],customGames:[],skullRound:1,completedGames:[]};
 if(state.players.length && typeof state.players[0]==="string") state.players=state.players.map(name=>({name}));
 function names(){return state.players.map(p=>p.name)}
 function avatarOf(name){return initials(name)}
