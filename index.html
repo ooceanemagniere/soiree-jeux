@@ -27,7 +27,24 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 .scoretile{background:white;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
 .scoretile .bigscore{font-size:25px;font-weight:900}
 .quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.player-pool{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.player-chip{padding:10px 13px;border-radius:999px;background:white;border:1px solid var(--line);font-weight:800}.player-chip.active{background:var(--ink);color:white;border-color:var(--ink)}.groupbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}.groupbox h3{margin:0 0 5px}
-@media(max-width:760px){.grid,.game-list,.formgrid{grid-template-columns:1fr}.hero h1{font-size:29px}.app{padding-left:12px;padding-right:12px}}
+@media(max-width:760px){
+  .grid,.formgrid{grid-template-columns:1fr}
+  .game-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .game{padding:13px;min-height:145px;display:flex;flex-direction:column;align-items:flex-start}
+  .game .emoji{font-size:25px;line-height:1;margin-bottom:8px}
+  .game b{font-size:17px;line-height:1.15}
+  .game .small{font-size:12px;margin-top:3px}
+  .game .tag{font-size:10.5px;padding:4px 7px;margin-top:7px;margin-right:3px}
+  .hero h1{font-size:29px}
+  .app{padding-left:12px;padding-right:12px}
+  #games .section-title{align-items:center;margin-top:12px}
+  #games .section-title h2{font-size:25px;line-height:1.05}
+  #games .section-title .btn{padding:10px 13px;font-size:14px}
+}
+@media(max-width:360px){
+  .game-list{grid-template-columns:1fr}
+  .game{min-height:auto}
+}
 </style>
 </head>
 <body>
@@ -83,7 +100,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 const builtins=[
 {id:"skullking",name:"Skull King",emoji:"🏴‍☠️",min:2,max:8,type:"plis",engine:"skullking",higher:true,setup:"10 manches. À la manche 1 : 1 carte par joueur, puis 2, 3… jusqu’à 10.",goal:"Annoncer exactement le nombre de plis que tu vas remporter.",turn:"Chaque joueur annonce son pari. Les plis sont ensuite joués avec couleurs, atout noir et personnages spéciaux.",score:"L’appli calcule les points de pari, le zéro et les bonus de captures."},
 {id:"skyjo",name:"Skyjo",emoji:"🔢",min:2,max:8,type:"cartes",engine:"skyjo",higher:false,setup:"12 cartes par joueur, face cachée, en grille de 4 colonnes × 3 lignes. Chacun retourne 2 cartes.",goal:"Terminer la partie avec le moins de points possible.",turn:"Piocher ou prendre la défausse, échanger une carte ou révéler une carte. Trois cartes identiques dans une colonne sont défaussées.",score:"Tu entres le total brut de chaque joueur et indiques qui a fermé la manche. L’appli applique automatiquement le doublement éventuel."},
-{id:"tarot",name:"Tarot",emoji:"🃏",min:3,max:5,type:"plis",engine:"tarot",higher:true,setup:"Le Tarot se joue en plusieurs donnes. L’application garde désormais l’historique des manches et le cumul de chaque joueur.",goal:"Le preneur doit atteindre le seuil correspondant à son nombre de bouts.",turn:"Enchères, chien/écart selon le contrat, puis jeu des plis.",score:"Entre les informations de la donne ; l’application calcule le score, l’ajoute à l’historique et affiche le classement cumulé."},
+{id:"tarot",name:"Tarot",emoji:"🃏",min:3,max:5,type:"plis",engine:"tarot",higher:true,setup:"Le Tarot se joue à 3, 4 ou 5 joueurs, en plusieurs donnes. L’application garde l’historique des manches et le cumul de chaque joueur.",goal:"Le preneur doit atteindre le seuil correspondant à son nombre de bouts.",turn:"Enchères, chien/écart selon le contrat, puis jeu des plis.",score:"Entre les informations de la donne ; calcul automatique à 3, 4 et 5 joueurs, avec partenaire appelé à 5."},
 {id:"dominos",name:"Dominos",emoji:"🁫",min:2,max:6,type:"tuiles",engine:"directLow",higher:false,setup:"Distribuez les dominos selon votre variante et placez le reste en pioche s’il y en a une.",goal:"Être le premier à poser tous ses dominos ou terminer avec le moins de points en main.",turn:"Poser une tuile dont une extrémité correspond à une extrémité libre.",score:"Entre les points restant en main : le plus petit total est considéré gagnant."},
 {id:"nainjaune",name:"Nain Jaune",emoji:"🟡",min:3,max:8,type:"cartes",engine:"directHigh",higher:true,setup:"Installez le plateau, les mises sur les cases et distribuez les cartes selon le nombre de joueurs.",goal:"Se débarrasser de ses cartes en suites et récupérer les mises des cartes remarquables.",turn:"Le joueur pose une suite montante aussi longtemps qu’il le peut puis annonce la carte attendue.",score:"Entre le gain net de chaque joueur à la fin de la partie."},
 {id:"rummikub",name:"Rummikub",emoji:"🔴",min:2,max:4,type:"tuiles",engine:"rummikub",higher:true,setup:"14 tuiles par joueur. Le reste forme la pioche.",goal:"Être le premier à poser toutes ses tuiles en groupes et suites valides.",turn:"Après une première pose d’au moins 30 points, on peut ajouter et réorganiser les combinaisons sur la table.",score:"Entre la valeur des tuiles restant chez chaque perdant : l’appli attribue le total positif au gagnant et les valeurs négatives aux autres."},
@@ -204,17 +221,31 @@ function renderTarot(p,g){
   let n=names().length, hist=tarotHistory(), totals=tarotTotals();
   let historyHtml=hist.length?hist.map((r,i)=>{
     let d=r.details||{};
-    return `<div class="calcbox"><div style="display:flex;justify-content:space-between;gap:10px"><b>Manche ${i+1}</b><span class="small">${esc(d.contractLabel||"Contrat")} · ${esc(d.preneur||"")}</span></div>${Object.entries(r.scores).map(([pl,s])=>`<div class="stat"><span>${esc(pl)}</span><b>${s>0?"+":""}${s}</b></div>`).join("")}</div>`;
+    let partnerInfo=d.partner?` · avec ${esc(d.partner)}`:(d.soloFive?" · seul":"");
+    return `<div class="calcbox"><div style="display:flex;justify-content:space-between;gap:10px"><b>Manche ${i+1}</b><span class="small">${esc(d.contractLabel||"Contrat")} · ${esc(d.preneur||"")}${partnerInfo}</span></div>${Object.entries(r.scores).map(([pl,s])=>`<div class="stat"><span>${esc(pl)}</span><b>${s>0?"+":""}${s}</b></div>`).join("")}</div>`;
   }).join(""):'<div class="empty">Aucune manche de Tarot enregistrée.</div>';
   let totalHtml=names().map(pl=>`<div class="stat"><span>${esc(pl)}</span><b>${totals[pl]>0?"+":""}${totals[pl]||0}</b></div>`).join("");
-  if(n!==3&&n!==4){
-    p.innerHTML=`<h3>🃏 Tarot · ${hist.length} manche(s)</h3><div class="empty">Le calcul automatique de cette V3 est prévu pour 3 ou 4 joueurs.</div><h3 style="margin-top:16px">Cumul</h3>${totalHtml}<h3 style="margin-top:16px">Historique</h3>${historyHtml}`;
+
+  if(![3,4,5].includes(n)){
+    p.innerHTML=`<h3>🃏 Tarot · ${hist.length} manche(s)</h3><div class="empty">Le Tarot standard se joue à 3, 4 ou 5 joueurs. Sélectionne entre 3 et 5 joueurs pour utiliser le calcul automatique.</div><h3 style="margin-top:16px">Cumul</h3>${totalHtml}<h3 style="margin-top:16px">Historique</h3>${historyHtml}`;
     return;
   }
+
+  let fivePlayerFields=n===5?`
+    <label><span>Partenaire du preneur</span>
+      <select id="tar-partner">
+        <option value="">Preneur seul contre 4</option>
+        ${names().map(pl=>`<option value="${esc(pl)}">${esc(pl)}</option>`).join("")}
+      </select>
+    </label>
+    <div class="custom-note" style="grid-column:1/-1">À 5 joueurs, choisis le partenaire qui détenait la carte appelée. Si la carte appelée était au chien ou si le preneur s’est appelé lui-même, laisse « Preneur seul contre 4 ».</div>
+  `:"";
+
   p.innerHTML=`<h3>🃏 Nouvelle manche Tarot</h3>
-  <div class="round-chip">Manche ${hist.length+1}</div>
+  <div class="round-chip">Manche ${hist.length+1} · ${n} joueurs</div>
   <div class="formgrid" style="margin-top:12px">
   <label><span>Preneur</span><select id="tar-preneur">${playerOptions()}</select></label>
+  ${fivePlayerFields}
   <label><span>Contrat</span><select id="tar-contrat">
     <option value="1" data-label="Petite">Petite</option>
     <option value="1" data-label="Pouce">Pouce</option>
@@ -223,19 +254,21 @@ function renderTarot(p,g){
     <option value="6" data-label="Garde contre">Garde contre</option>
   </select></label>
   <label><span>Nombre de bouts</span><select id="tar-bouts"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
-  <label><span>Points du preneur</span><input class="field" id="tar-points" type="number" step="0.5" value="41"></label>
+  <label><span>Points du camp preneur</span><input class="field" id="tar-points" type="number" step="0.5" value="41"></label>
   <label><span>Poignée</span><select id="tar-poignee"><option value="0">Aucune</option><option value="20">Simple (+20)</option><option value="30">Double (+30)</option><option value="40">Triple (+40)</option></select></label>
-  <label><span>Poignée montrée par</span><select id="tar-poignee-camp"><option value="attack">Preneur</option><option value="defense">Défense</option></select></label>
-  <label><span>Petit au bout</span><select id="tar-petit"><option value="none">Aucun</option><option value="attack">Preneur</option><option value="defense">Défense</option></select></label>
+  <label><span>Poignée montrée par</span><select id="tar-poignee-camp"><option value="attack">Camp preneur</option><option value="defense">Défense</option></select></label>
+  <label><span>Petit au bout</span><select id="tar-petit"><option value="none">Aucun</option><option value="attack">Camp preneur</option><option value="defense">Défense</option></select></label>
   <label><span>Chelem</span><select id="tar-chelem"><option value="0">Aucun</option><option value="400">Annoncé et réussi (+400)</option><option value="200">Non annoncé et réussi (+200)</option><option value="-200">Annoncé mais raté (−200)</option></select></label>
   <label><span>Misère d’atout</span><select id="tar-misere-atout">${playerOptions(true)}</select></label>
   <label><span>Misère de tête</span><select id="tar-misere-tete">${playerOptions(true)}</select></label>
   <label><span>Valeur de chaque misère</span><input class="field" id="tar-misere-val" type="number" value="10" min="0"></label>
-  </div><div class="custom-note">Les misères sont des conventions de table et leur valeur peut varier. Tu peux donc choisir le joueur concerné et régler leur valeur ; +10 est proposé par défaut.</div>
+  </div>
+  <div class="custom-note">Les misères sont des conventions de table : leur valeur reste réglable. À 5 joueurs, les points du camp attaquant sont répartis entre preneur et partenaire.</div>
   <button class="btn green" style="width:100%;margin-top:14px" onclick="saveTarot('${g.id}',${n})">Enregistrer la manche</button>
   <div class="divider"></div><h3>Cumul de la partie</h3>${totalHtml}
   <h3 style="margin-top:16px">Historique des manches</h3>${historyHtml}<button class="btn accent" style="width:100%;margin-top:14px" onclick="finishCumulativeGame('tarot')">🏁 Terminer cette partie de Tarot</button>`;
 }
+
 function saveTarot(id,n){
   let g=games().find(x=>x.id===id),pr=document.getElementById("tar-preneur").value;
   let contractEl=document.getElementById("tar-contrat"),coef=Number(contractEl.value),contractLabel=contractEl.options[contractEl.selectedIndex].dataset.label;
@@ -244,10 +277,36 @@ function saveTarot(id,n){
   let poignee=num("tar-poignee"),pc=document.getElementById("tar-poignee-camp").value;if(poignee)unit+=(pc==="attack"?1:-1)*poignee;
   let petit=document.getElementById("tar-petit").value;if(petit!=="none")unit+=(petit==="attack"?1:-1)*10*coef;
   unit+=num("tar-chelem");
-  let scores={};names().forEach(p=>scores[p]=p===pr?unit*(n-1):-unit);
+
+  let scores={};
+  let partner="",soloFive=false;
+
+  if(n===5){
+    partner=document.getElementById("tar-partner").value;
+    if(partner===pr)return toast("Le partenaire doit être différent du preneur");
+    if(partner){
+      // Each of the 3 defenders scores -unit; attack total is +3*unit:
+      // 2/3 to preneur = +2*unit, 1/3 to partner = +unit.
+      names().forEach(p=>{
+        if(p===pr)scores[p]=2*unit;
+        else if(p===partner)scores[p]=unit;
+        else scores[p]=-unit;
+      });
+    }else{
+      // Preneur alone against four defenders.
+      soloFive=true;
+      names().forEach(p=>scores[p]=p===pr?4*unit:-unit);
+    }
+  }else{
+    names().forEach(p=>scores[p]=p===pr?unit*(n-1):-unit);
+  }
+
   let misereVal=num("tar-misere-val",10),ma=document.getElementById("tar-misere-atout").value,mt=document.getElementById("tar-misere-tete").value;
-  [ma,mt].filter(Boolean).forEach(benef=>{names().forEach(p=>{if(p===benef)scores[p]+=misereVal*(n-1);else scores[p]-=misereVal})});
-  saveResult(g,scores,true,{preneur:pr,coef,contractLabel,bouts,pts,target,unit,misereAtout:ma,misereTete:mt,misereVal});
+  [ma,mt].filter(Boolean).forEach(benef=>{
+    names().forEach(p=>{if(p===benef)scores[p]+=misereVal*(n-1);else scores[p]-=misereVal});
+  });
+
+  saveResult(g,scores,true,{preneur:pr,partner,soloFive,coef,contractLabel,bouts,pts,target,unit,misereAtout:ma,misereTete:mt,misereVal});
 }
 
 

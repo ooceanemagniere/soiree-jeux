@@ -1,17 +1,16 @@
-SOIRÉE JEUX — FINALE 1.7.2
+SOIRÉE JEUX — FINALE 1.8
 
-Cette version repart de la Finale 1.6 stable.
+Mobile :
+- Bibliothèque de jeux en grille compacte de 2 cartes par ligne.
+- Cartes plus courtes et tags plus compacts.
+- Retour automatique à 1 colonne sur les très petits écrans.
 
-Onglet Joueurs :
-- Famille & habitués :
-  Chantal, Jacquot, Keks, Bab's, Fof, Gwen, Jeanne, Océ, Maxime.
-- Groupe Tarot :
-  Brigitte, Bernard, Jacques, Fred, Chantal.
-- Sélection des joueurs en un clic.
-- Possibilité d'ajouter une nouvelle personne.
-- Les habitués restent enregistrés d'une soirée à l'autre.
-- Nouvelle soirée : sélection remise à zéro, listes conservées.
+Tarot :
+- Calcul automatique désormais disponible à 3, 4 ET 5 joueurs.
+- À 5 : sélection du partenaire du preneur ou option « preneur seul contre 4 ».
+- Avec partenaire : chaque défenseur reçoit -1 unité, le partenaire +1 unité et le preneur +2 unités.
+- Preneur seul à 5 : chaque défenseur -1 unité, preneur +4 unités.
+- Historique et cumul conservés.
+- Au-delà de 5 joueurs, l'app indique que le Tarot standard n'est pas prévu pour ce nombre de joueurs.
 
-Correction :
-- Keks sans apostrophe.
-- JavaScript vérifié avant génération.
+Syntaxe JavaScript vérifiée avec Node.
