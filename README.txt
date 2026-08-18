@@ -1,10 +1,13 @@
-SOIRÉE JEUX — FINALE 1.4
+SOIRÉE JEUX — FINALE 1.5
 
-Modification Dobble :
-- Le résultat n'est plus limité à un seul gagnant.
-- Chaque joueur reçoit une place : 1er, 2e, 3e, etc.
-- Une même place ne peut pas être attribuée à deux joueurs.
-- Le 1er reste considéré comme vainqueur dans le classement général de la soirée.
-- L'ordre complet est conservé avec le résultat de la partie.
+Dobble amélioré :
+- On renseigne l'ordre d'arrivée, pas seulement un gagnant.
+- Le dernier joueur est déduit automatiquement.
+- Exemple à 3 joueurs : choisir le 1er et le 2e suffit ; le 3e est automatique.
+- Points de soirée Dobble selon la place :
+  * à 3 joueurs : 3 / 2 / 0
+  * à 4 joueurs : 4 / 3 / 2 / 0
+  * etc.
+- Le classement général utilise désormais ces points de placement pour Dobble au lieu du barème générique 3/1.
 
-Toutes les fonctions de la Finale 1.3 sont conservées.
+Toutes les autres fonctions sont conservées.

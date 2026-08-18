@@ -230,23 +230,54 @@ function saveTarot(id,n){
 
 function ordinalFr(n){return n===1?"1er":n+"e"}
 function renderRankingGame(p,g){
- let n=names().length;
+ let players=names(),n=players.length;
+ let selectors=Array.from({length:Math.max(0,n-1)},(_,k)=>{
+   let rank=k+1;
+   return `<div class="score-row"><div style="flex:1"><b>${ordinalFr(rank)}</b></div>
+   <select id="place-${rank}" onchange="updateDobbleLast()" style="max-width:220px">
+   <option value="">Choisir un joueur</option>${players.map(pl=>`<option value="${esc(pl)}">${esc(pl)}</option>`).join("")}
+   </select></div>`;
+ }).join("");
  p.innerHTML=`<h3>🏁 Classement de la partie</h3>
- <p class="small">Indique l’ordre d’arrivée de chaque joueur.</p>
- ${names().map((pl,i)=>`<div class="score-row"><div class="avatar">${initials(pl)}</div><div style="flex:1"><b>${esc(pl)}</b></div>
- <select id="rank-${i}" style="max-width:150px">${Array.from({length:n},(_,k)=>`<option value="${k+1}">${ordinalFr(k+1)}</option>`).join("")}</select></div>`).join("")}
+ <p class="small">Classe les joueurs dans l’ordre d’arrivée. Le dernier est déduit automatiquement.</p>
+ ${selectors}
+ <div class="calcbox" style="margin-top:10px"><div class="small">Dernier</div><b id="dobble-last">—</b></div>
+ <div class="custom-note">Points de soirée : le 1er reçoit ${n} pt${n>1?"s":""}, puis les points descendent avec le classement. Le dernier reçoit 0 point.</div>
  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRankingGame('${g.id}')">Enregistrer le classement</button>`;
 }
-function saveRankingGame(id){
- let g=games().find(x=>x.id===id),n=names().length,ranks={},seen=new Set();
- for(let i=0;i<n;i++){
-   let rank=Number(document.getElementById("rank-"+i).value);
-   if(seen.has(rank)) return toast("Chaque place doit être attribuée une seule fois");
-   seen.add(rank); ranks[names()[i]]=rank;
+function updateDobbleLast(){
+ let players=names(),n=players.length,chosen=[];
+ for(let rank=1;rank<n;rank++){
+   let el=document.getElementById("place-"+rank);
+   if(el&&el.value)chosen.push(el.value);
  }
- let scores={};
- Object.entries(ranks).forEach(([pl,rank])=>scores[pl]=n-rank+1);
- saveResult(g,scores,true,{ranking:ranks});
+ let unique=new Set(chosen);
+ let last=players.filter(p=>!unique.has(p));
+ let target=document.getElementById("dobble-last");
+ if(!target)return;
+ target.textContent=(chosen.length===n-1 && unique.size===n-1 && last.length===1)?last[0]:"—";
+}
+function saveRankingGame(id){
+ let g=games().find(x=>x.id===id),players=names(),n=players.length,ranking={},used=new Set();
+ for(let rank=1;rank<n;rank++){
+   let el=document.getElementById("place-"+rank),pl=el?el.value:"";
+   if(!pl)return toast("Il manque une place dans le classement");
+   if(used.has(pl))return toast("Un joueur ne peut pas avoir deux places");
+   used.add(pl);ranking[pl]=rank;
+ }
+ let last=players.find(p=>!used.has(p));
+ if(!last)return toast("Impossible de déterminer le dernier joueur");
+ ranking[last]=n;
+
+ // Dobble league points: N points for 1st, descending, with 0 for last.
+ let leaguePoints={},scores={};
+ Object.entries(ranking).forEach(([pl,rank])=>{
+   let pts = rank===n ? 0 : (n-rank+1);
+   leaguePoints[pl]=pts;
+   scores[pl]=n-rank+1; // preserve ordering in raw result
+ });
+ state.results.push({gameId:g.id,gameName:g.name,scores,higher:true,date:new Date().toISOString(),details:{ranking,leaguePoints}});
+ persist();toast("Classement Dobble enregistré 🎉");showTab("ranking");
 }
 
 function renderTeams(p,g){
@@ -322,16 +353,33 @@ function standings(){
  let roundGames=new Set(["tarot","flip7","dekal"]);
  let handled=new Set();
  state.results.filter(r=>!r.archived).forEach(r=>{
+   if(r.details&&r.details.leaguePoints){
+     let lp=r.details.leaguePoints, maxPts=Math.max(...Object.values(lp));
+     Object.entries(lp).forEach(([p,pts])=>{
+       if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};
+       d[p].games++; d[p].league+=pts; d[p].raw+=(r.scores[p]||0);
+       if(pts===maxPts)d[p].wins++;
+     });
+     return;
+   }
    if(roundGames.has(r.gameId)){
      if(handled.has(r.gameId)) return;
      handled.add(r.gameId);
-     let relevant=state.results.filter(x=>x.gameId===r.gameId), sums={};names().forEach(p=>sums[p]=0);
+     let relevant=state.results.filter(x=>x.gameId===r.gameId && !x.archived), sums={};names().forEach(p=>sums[p]=0);
      relevant.forEach(x=>Object.entries(x.scores).forEach(([p,s])=>sums[p]=(sums[p]||0)+s));
      let high=r.gameId!=="dekal", vals=Object.values(sums),best=high?Math.max(...vals):Math.min(...vals);
-     Object.entries(sums).forEach(([p,s])=>{if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};d[p].games++;d[p].raw+=s;if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1});
+     Object.entries(sums).forEach(([p,s])=>{
+       if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};
+       d[p].games++;d[p].raw+=s;
+       if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1
+     });
    } else {
      let vals=Object.values(r.scores),best=r.higher?Math.max(...vals):Math.min(...vals);
-     Object.entries(r.scores).forEach(([p,s])=>{if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};d[p].games++;d[p].raw+=s;if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1});
+     Object.entries(r.scores).forEach(([p,s])=>{
+       if(!d[p])d[p]={league:0,wins:0,games:0,raw:0};
+       d[p].games++;d[p].raw+=s;
+       if(s===best){d[p].wins++;d[p].league+=3}else d[p].league+=1
+     });
    }
  });
  return Object.entries(d).map(([name,v])=>({name,...v})).sort((a,b)=>b.league-a.league||b.wins-a.wins||b.raw-a.raw)
