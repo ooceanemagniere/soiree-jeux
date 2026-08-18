@@ -1,34 +1,33 @@
-SOIRÉE JEUX — FINALE 1.13
+SOIRÉE JEUX — FINALE 1.14
 
-Objectif général : le moins de saisie manuelle possible.
+Nouveau récapitulatif façon Trio :
+- Skyjo
+- Dominos
+- Nain Jaune
+- Rummikub
+- 7 familles
+- Dobble
+- TimeBomb
+- Traîtres à bord
+- DEKAL
+- Flip 7
+- 6 qui prend !
+- UNO
 
-7 familles
-- Menus 0 à 7 pour chaque joueur.
-- Vérification que le total des familles vaut 7.
+Principe :
+- cumul visible en haut ;
+- nouvelle manche/partie au milieu ;
+- historique en dessous ;
+- bouton pour clôturer la série/partie ;
+- les manches intermédiaires ne comptent pas individuellement dans le classement général.
 
-Triominos
-- Calcul par tour.
-- Choix du joueur.
-- Somme de la tuile : sélection 0 à 15.
-- Bonus : aucun / Pont +40 / Hexagone +50 / Double +60 / Triple +70.
-- Nombre de pioches : 0 à 3.
-- Case « impossible après 3 pioches » = pénalité totale automatique.
-- Cumul et historique des derniers tours.
-- Bouton Terminer la partie pour envoyer le total au classement général.
-
-Yams
-- Plus aucun score à calculer manuellement.
-- À chaque tour : joueur + catégorie + 5 dés, tous via menus.
-- L'app calcule As à Six, Brelan, Carré, Full, Petite/Grande suite, Yams et Chance.
-- Bonus +35 automatique à partir de 63 points dans la partie supérieure.
-- Chaque catégorie ne peut être utilisée qu'une fois par joueur.
-- Tableau du score cumulé.
-- La partie ne peut être terminée que lorsque les 13 cases de chaque joueur sont remplies.
-
-Trio
-- Historique des manches.
-- Nombre de victoires cumulé par joueur.
-- Une seule sélection : le gagnant de la manche.
-- Bouton pour clôturer la série et envoyer le résultat global au classement.
+Flip 7 :
+- saisie joueur par joueur ;
+- cartes Nombre 0 à 12 sous forme de boutons sélectionnables ;
+- Bust, x2, +2, +4, +6, +8, +10 sous forme de cases ;
+- bonus Flip 7 +15 automatique lorsque 7 nombres différents sont sélectionnés ;
+- Stop/Freeze, Flip Three et Second Chance n'ajoutent pas directement de points et ne nécessitent donc pas de saisie dédiée ;
+- validation de chaque joueur puis validation de la manche ;
+- historique des manches et progression vers 200 points.
 
 JavaScript vérifié avec Node.

@@ -26,7 +26,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 .scoreboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:12px 0}
 .scoretile{background:white;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
 .scoretile .bigscore{font-size:25px;font-weight:900}
-.quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.player-pool{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.player-chip{padding:10px 13px;border-radius:999px;background:white;border:1px solid var(--line);font-weight:800}.player-chip.active{background:var(--ink);color:white;border-color:var(--ink)}.checkline{display:flex!important;align-items:center;gap:9px;min-height:44px}.checkline input{width:20px;height:20px;accent-color:var(--accent)}.groupbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}.groupbox h3{margin:0 0 5px}
+.quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.player-pool{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.player-chip{padding:10px 13px;border-radius:999px;background:white;border:1px solid var(--line);font-weight:800}.player-chip.active{background:var(--ink);color:white;border-color:var(--ink)}.checkline{display:flex!important;align-items:center;gap:9px;min-height:44px}.checkline input{width:20px;height:20px;accent-color:var(--accent)}.pickgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.pickbtn{border:1px solid var(--line);background:white;border-radius:12px;padding:11px 4px;font-weight:900;font-size:16px}.pickbtn.selected{background:var(--ink);color:white;border-color:var(--ink)}@media(max-width:600px){.pickgrid{grid-template-columns:repeat(5,1fr)}}.groupbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}.groupbox h3{margin:0 0 5px}
 @media(max-width:760px){
   .grid,.formgrid{grid-template-columns:1fr}
   .game-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -121,8 +121,8 @@ const builtins=[
 {id:"traitresabord",name:"Traîtres à bord",emoji:"🏴‍☠️",min:3,max:8,type:"rôles cachés",engine:"teams",higher:true,setup:"Chaque joueur reçoit secrètement un rôle : Pirate ou Mutin/Traître selon votre édition.",goal:"Les pirates cherchent à remplir le coffre et éliminer les mutins ; les mutins sabotent et tentent de faire échouer les pirates.",turn:"Jouez les cartes Butin et Action en gardant votre rôle secret aussi longtemps que possible.",score:"À la fin, indique l’équipe de chaque joueur et quelle équipe a gagné."},
 {id:"dekal",name:"DEKAL",emoji:"🟦",min:2,max:6,type:"cartes",engine:"roundLow",higher:false,setup:"Chaque joueur construit et réorganise sa grille selon les règles de DEKAL.",goal:"Terminer avec le moins de points possible. Les cartes adjacentes de même valeur peuvent s’annuler en fin de partie.",turn:"Choisis et insère les cartes de façon à optimiser ta grille.",score:"Entre le total final de chaque joueur : le plus petit score gagne."},
 {id:"flip7",name:"Flip 7",emoji:"7️⃣",min:3,max:18,type:"stop ou encore",engine:"flip7",higher:true,setup:"Une manche se joue en révélant progressivement des cartes. Un doublon de nombre fait sauter la manche du joueur concerné.",goal:"Cumuler des points sur plusieurs manches. Quand au moins un joueur atteint 200 points à la fin d’une manche, le plus haut total gagne.",turn:"À ton tour, choisis de continuer ou t’arrêter. Les modificateurs peuvent augmenter ton score.",score:"Calculateur par manche : somme des nombres, ×2 éventuel, bonus +2/+4/+6/+8/+10 et bonus Flip 7 de +15."},
-{id:"sixquiprend",name:"6 qui prend !",emoji:"🐮",min:2,max:10,type:"cartes",engine:"directLow",higher:false,setup:"10 cartes par joueur et 4 cartes pour démarrer quatre rangées.",goal:"Récupérer le moins de têtes de bœuf possible.",turn:"Tout le monde choisit une carte en secret, puis les cartes sont placées en ordre croissant. La 6e carte oblige à ramasser.",score:"Entre les têtes de bœuf récoltées : le plus petit total gagne."},
-{id:"uno",name:"UNO",emoji:"🌈",min:2,max:10,type:"cartes",engine:"winner",higher:true,setup:"7 cartes par joueur, une pioche et une défausse.",goal:"Être le premier à ne plus avoir de cartes.",turn:"Même couleur, même chiffre ou même symbole ; sinon pioche.",score:"Sélectionne le gagnant de la manche."},
+{id:"sixquiprend",name:"6 qui prend !",emoji:"🐮",min:2,max:10,type:"cartes",engine:"historyLow",higher:false,setup:"10 cartes par joueur et 4 cartes pour démarrer quatre rangées.",goal:"Récupérer le moins de têtes de bœuf possible.",turn:"Tout le monde choisit une carte en secret, puis les cartes sont placées en ordre croissant. La 6e carte oblige à ramasser.",score:"Entre les têtes de bœuf récoltées : le plus petit total gagne."},
+{id:"uno",name:"UNO",emoji:"🌈",min:2,max:10,type:"cartes",engine:"winnerRounds",higher:true,setup:"7 cartes par joueur, une pioche et une défausse.",goal:"Être le premier à ne plus avoir de cartes.",turn:"Même couleur, même chiffre ou même symbole ; sinon pioche.",score:"Sélectionne le gagnant de la manche."},
 {id:"trio",name:"Trio",emoji:"🃏",min:3,max:6,type:"mémoire",engine:"trioRounds",higher:true,setup:"Distribuez les cartes selon le nombre de joueurs et placez les restantes au centre.",goal:"Obtenir trois trios ou le trio de 7 selon la règle standard.",turn:"Révéler des cartes accessibles en cherchant trois valeurs identiques.",score:"Enregistre le gagnant de chaque manche ; l’historique et le nombre de victoires sont conservés jusqu’à la fin de la partie."}
 ];
 
@@ -217,6 +217,8 @@ function renderEngine(g){
  if(g.engine==="sevenfamilies")return renderSevenFamilies(p,g);
  if(g.engine==="triominos")return renderTriominos(p,g);
  if(g.engine==="trioRounds")return renderTrioRounds(p,g);
+ if(g.engine==="winnerRounds")return renderWinnerRounds(p,g);
+ if(g.engine==="historyHigh"||g.engine==="historyLow")return renderHistoryScores(p,g);
  if(g.engine==="teams")return renderTeams(p,g);
  if(g.engine==="flip7")return renderFlip7(p,g);
  if(g.engine==="roundLow")return renderRoundLow(p,g);
@@ -228,9 +230,70 @@ function renderDirect(p,g){p.innerHTML=`<h3>✍️ Scores</h3>${names().map((x,i
 function saveDirect(id){let g=games().find(x=>x.id===id),scores={};for(let i=0;i<names().length;i++){let e=document.getElementById("direct-"+i);if(e.value==="")return toast("Il manque un score");scores[names()[i]]=+e.value}saveResult(g,scores,g.higher)}
 function saveWinner(id){let g=games().find(x=>x.id===id),w=document.getElementById("winner").value,scores={};names().forEach(p=>scores[p]=p===w?1:0);saveResult(g,scores,true)}
 
-function renderSkyjo(p,g){p.innerHTML=`<h3>🔢 Fin de manche Skyjo</h3><p class="small">Entre simplement la somme visible de chaque grille avant pénalité.</p><label><b>Qui a retourné sa dernière carte en premier ?</b><select id="sky-stopper">${playerOptions()}</select></label><div class="divider"></div>${names().map((x,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(x)}</b></div><input id="sky-${i}" type="number" step="1" placeholder="Brut"></div>`).join("")}<div class="custom-note">Si la personne qui ferme n’a pas strictement le plus petit total (égalité comprise), son score positif de la manche est doublé automatiquement.</div><button class="btn green" style="width:100%;margin-top:14px" onclick="saveSkyjo('${g.id}')">Calculer & enregistrer</button>`}
-function saveSkyjo(id){let g=games().find(x=>x.id===id),stop=document.getElementById("sky-stopper").value,raw={};for(let i=0;i<names().length;i++){let e=document.getElementById("sky-"+i);if(e.value==="")return toast("Il manque un total");raw[names()[i]]=+e.value}let min=Math.min(...Object.values(raw)),scores={...raw};if(raw[stop]>=min && raw[stop]>0){let strictlyAlone=raw[stop]<Math.min(...Object.entries(raw).filter(([p])=>p!==stop).map(([,v])=>v));if(!strictlyAlone)scores[stop]=raw[stop]*2}saveResult(g,scores,false,{raw,stopper:stop});}
 
+function activeRounds(id){return state.results.filter(r=>r.gameId===id && r.inProgress && !r.archived)}
+function roundTotals(id){
+ let t={};names().forEach(p=>t[p]=0);
+ activeRounds(id).forEach(r=>Object.entries(r.scores||{}).forEach(([p,s])=>t[p]=(t[p]||0)+s));
+ return t;
+}
+function historyBoard(id,higher=true,label="points"){
+ let t=roundTotals(id);
+ return `<div class="scoreboard">${names().map(p=>`<div class="scoretile"><b>${esc(p)}</b><div class="bigscore">${t[p]||0}</div><div class="small">${label}</div></div>`).join("")}</div>`;
+}
+function historyList(id){
+ let h=activeRounds(id);
+ return `<h3 style="margin-top:16px">Historique</h3>${h.length?h.map((r,i)=>{
+   let vals=Object.entries(r.scores||{}).map(([p,s])=>`${esc(p)} ${s>0?"+":""}${s}`).join(" · ");
+   return `<div class="stat"><span>Manche ${i+1}</span><b style="font-size:14px;text-align:right">${vals}</b></div>`;
+ }).join(""):'<div class="empty">Aucune manche jouée.</div>'}`;
+}
+function pushRound(g,scores,higher,details={}){
+ state.results.push({gameId:g.id,gameName:g.name+" · manche",scores,higher,date:new Date().toISOString(),details,inProgress:true});
+ persist();toast("Manche enregistrée ✓");renderEngine(g);
+}
+function finishRoundSeries(id){
+ let g=games().find(x=>x.id===id),rounds=activeRounds(id);
+ if(!rounds.length)return toast("Aucune manche enregistrée");
+ let totals=roundTotals(id);rounds.forEach(r=>r.archived=true);
+ state.results.push({gameId:id+"_finished_"+Date.now(),baseGameId:id,gameName:g.name+" · partie terminée",scores:totals,higher:g.higher,date:new Date().toISOString(),completed:true});
+ persist();toast("Partie terminée 🏆");renderEngine(g);
+}
+function renderHistoryScores(p,g){
+ let high=g.engine==="historyHigh";
+ p.innerHTML=`<h3>${g.emoji} ${esc(g.name)} · manches</h3>${historyBoard(g.id,high)}
+ <div class="calcbox"><div class="small">${high?"Ajoute les points de cette manche.":"Ajoute les points/pénalités de cette manche."}</div>
+ ${names().map((pl,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(pl)}</b></div><input id="hs-${i}" type="number" inputmode="numeric" value="0"></div>`).join("")}
+ <button class="btn green" style="width:100%;margin-top:12px" onclick="saveHistoryScores('${g.id}')">Ajouter la manche</button></div>
+ ${historyList(g.id)}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('${g.id}')">🏁 Terminer la partie</button>`;
+}
+function saveHistoryScores(id){
+ let g=games().find(x=>x.id===id),scores={};names().forEach((p,i)=>scores[p]=num("hs-"+i));
+ pushRound(g,scores,g.higher,{round:true});
+}
+function renderSkyjo(p,g){
+ let hist=activeRounds("skyjo");
+ p.innerHTML=`<h3>🔢 Skyjo · Manche ${hist.length+1}</h3>${historyBoard("skyjo",false)}
+ <p class="small">Entre la somme visible de chaque grille avant pénalité.</p>
+ <label><b>Qui a retourné sa dernière carte en premier ?</b><select id="sky-stopper">${playerOptions()}</select></label>
+ <div class="divider"></div>
+ ${names().map((x,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(x)}</b></div><input id="sky-${i}" type="number" step="1" inputmode="numeric" placeholder="Total"></div>`).join("")}
+ <div class="custom-note">Si la personne qui ferme n’a pas strictement le plus petit total, son score positif est doublé automatiquement.</div>
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveSkyjo('${g.id}')">Ajouter la manche</button>
+ ${historyList("skyjo")}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('skyjo')">🏁 Terminer la partie de Skyjo</button>`;
+}
+function saveSkyjo(id){
+ let g=games().find(x=>x.id===id),stop=document.getElementById("sky-stopper").value,raw={};
+ for(let i=0;i<names().length;i++){let e=document.getElementById("sky-"+i);if(e.value==="")return toast("Il manque un total");raw[names()[i]]=+e.value}
+ let min=Math.min(...Object.values(raw)),scores={...raw};
+ if(raw[stop]>=min && raw[stop]>0){
+   let strictlyAlone=raw[stop]<Math.min(...Object.entries(raw).filter(([p])=>p!==stop).map(([,v])=>v));
+   if(!strictlyAlone)scores[stop]=raw[stop]*2;
+ }
+ pushRound(g,scores,false,{raw,stopper:stop});
+}
 function skullHistory(){
   return state.results.filter(r=>r.gameId==="skullking" && r.details && r.details.round && !r.archived);
 }
@@ -347,9 +410,22 @@ function saveSkull(id,r){
   renderEngine(g);
 }
 
-function renderRummikub(p,g){p.innerHTML=`<h3>🔴 Fin de manche Rummikub</h3><label><b>Qui a posé sa dernière tuile ?</b><select id="rum-winner">${playerOptions()}</select></label><p class="small">Entre la valeur des tuiles restant en main chez chaque joueur. Le gagnant recevra automatiquement la somme des pénalités adverses.</p>${names().map((x,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(x)}</b></div><input id="rum-${i}" type="number" min="0" placeholder="Reste"></div>`).join("")}<button class="btn green" style="width:100%;margin-top:14px" onclick="saveRummikub('${g.id}')">Calculer & enregistrer</button>`}
-function saveRummikub(id){let g=games().find(x=>x.id===id),w=document.getElementById("rum-winner").value,remain={},scores={},sum=0;for(let i=0;i<names().length;i++){let e=document.getElementById("rum-"+i);let v=e.value===""?0:+e.value;remain[names()[i]]=v;if(names()[i]!==w)sum+=v}names().forEach(p=>scores[p]=p===w?sum:-remain[p]);saveResult(g,scores,true,{winner:w,remain})}
-
+function renderRummikub(p,g){
+ let hist=activeRounds("rummikub");
+ p.innerHTML=`<h3>🔴 Rummikub · Manche ${hist.length+1}</h3>${historyBoard("rummikub",true)}
+ <label><b>Qui a posé sa dernière tuile ?</b><select id="rum-winner">${playerOptions()}</select></label>
+ <p class="small">Entre la valeur des tuiles restant en main. Le gain du vainqueur est calculé automatiquement.</p>
+ ${names().map((x,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(x)}</b></div><input id="rum-${i}" type="number" min="0" inputmode="numeric" placeholder="Reste"></div>`).join("")}
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRummikub('${g.id}')">Ajouter la manche</button>
+ ${historyList("rummikub")}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('rummikub')">🏁 Terminer la partie</button>`;
+}
+function saveRummikub(id){
+ let g=games().find(x=>x.id===id),w=document.getElementById("rum-winner").value,remain={},scores={},sum=0;
+ for(let i=0;i<names().length;i++){let e=document.getElementById("rum-"+i),v=e.value===""?0:+e.value;remain[names()[i]]=v;if(names()[i]!==w)sum+=v}
+ names().forEach(p=>scores[p]=p===w?sum:-remain[p]);
+ pushRound(g,scores,true,{winner:w,remain});
+}
 const yCats=[
  ["ones","As"],["twos","Deux"],["threes","Trois"],["fours","Quatre"],["fives","Cinq"],["sixes","Six"],
  ["three","Brelan"],["four","Carré"],["full","Full"],["small","Petite suite"],["large","Grande suite"],["yams","Yams"],["chance","Chance"]
@@ -606,12 +682,15 @@ function renderRankingGame(p,g){
    <option value="">Choisir un joueur</option>${players.map(pl=>`<option value="${esc(pl)}">${esc(pl)}</option>`).join("")}
    </select></div>`;
  }).join("");
- p.innerHTML=`<h3>🏁 Classement de la partie</h3>
+ let hist=activeRounds(g.id);
+ p.innerHTML=`<h3>👁️ Dobble · Partie ${hist.length+1}</h3>${historyBoard(g.id,true)}
  <p class="small">Classe les joueurs dans l’ordre d’arrivée. Le dernier est déduit automatiquement.</p>
  ${selectors}
  <div class="calcbox" style="margin-top:10px"><div class="small">Dernier</div><b id="dobble-last">—</b></div>
  <div class="custom-note">Points de soirée : le 1er reçoit ${n} pt${n>1?"s":""}, puis les points descendent jusqu’à 1 point pour le dernier.</div>
- <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRankingGame('${g.id}')">Enregistrer le classement</button>`;
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRankingGame('${g.id}')">Ajouter cette partie</button>
+ ${historyList(g.id)}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('${g.id}')">🏁 Terminer la série</button>`;
 }
 function updateDobbleLast(){
  let players=names(),n=players.length,chosen=[];
@@ -644,25 +723,27 @@ function saveRankingGame(id){
    leaguePoints[pl]=pts;
    scores[pl]=n-rank+1; // preserve ordering in raw result
  });
- state.results.push({gameId:g.id,gameName:g.name,scores,higher:true,date:new Date().toISOString(),details:{ranking,leaguePoints}});
- persist();toast("Classement Dobble enregistré 🎉");showTab("ranking");
+ state.results.push({gameId:g.id,gameName:g.name+" · partie",scores,higher:true,date:new Date().toISOString(),details:{ranking,leaguePoints},inProgress:true});
+ persist();toast("Partie Dobble enregistrée ✓");renderEngine(g);
 }
 
 
 function renderSevenFamilies(p,g){
-  p.innerHTML=`<h3>👨‍👩‍👧‍👦 Résultat · 7 familles</h3>
-  <p class="small">Sélectionne le nombre de familles complètes remportées par chaque joueur.</p>
-  ${names().map((pl,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(pl)}</b></div><select id="fam-${i}" style="max-width:140px">${Array.from({length:8},(_,n)=>`<option value="${n}">${n}</option>`).join("")}</select></div>`).join("")}
-  <div class="small">Le total doit faire 7 familles.</div>
-  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveSevenFamilies('${g.id}')">Enregistrer la partie</button>`;
+ let hist=activeRounds("septfamilles");
+ p.innerHTML=`<h3>👨‍👩‍👧‍👦 7 familles · Partie ${hist.length+1}</h3>${historyBoard("septfamilles",true,"familles")}
+ <p class="small">Sélectionne le nombre de familles complètes remportées par chacun.</p>
+ ${names().map((pl,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(pl)}</b></div><select id="fam-${i}" style="max-width:140px">${Array.from({length:8},(_,n)=>`<option value="${n}">${n}</option>`).join("")}</select></div>`).join("")}
+ <div class="small">Le total doit faire 7 familles.</div>
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveSevenFamilies('${g.id}')">Ajouter cette partie</button>
+ ${historyList("septfamilles")}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('septfamilles')">🏁 Terminer la série</button>`;
 }
 function saveSevenFamilies(id){
-  let g=games().find(x=>x.id===id),scores={},total=0;
-  names().forEach((p,i)=>{let v=num("fam-"+i);scores[p]=v;total+=v});
-  if(total!==7)return toast("Le total des familles doit être égal à 7");
-  saveResult(g,scores,true,{families:true});
+ let g=games().find(x=>x.id===id),scores={},total=0;
+ names().forEach((p,i)=>{let v=num("fam-"+i);scores[p]=v;total+=v});
+ if(total!==7)return toast("Le total des familles doit être égal à 7");
+ pushRound(g,scores,true,{families:true});
 }
-
 function triTurns(){return state.results.filter(r=>r.gameId==="triominos"&&r.inProgress&&!r.archived)}
 function triTotals(){
  let t={};names().forEach(p=>t[p]=0);
@@ -716,6 +797,20 @@ function trioWins(){
  trioRounds().forEach(r=>Object.entries(r.scores).forEach(([p,s])=>w[p]=(w[p]||0)+s));
  return w;
 }
+function renderWinnerRounds(p,g){
+ let hist=activeRounds(g.id),wins=roundTotals(g.id);
+ p.innerHTML=`<h3>${g.emoji} ${esc(g.name)} · manches</h3>
+ <div class="scoreboard">${names().map(pl=>`<div class="scoretile"><b>${esc(pl)}</b><div class="bigscore">${wins[pl]||0}</div><div class="small">victoire${wins[pl]===1?"":"s"}</div></div>`).join("")}</div>
+ <div class="calcbox"><label><b>Qui a gagné cette manche ?</b><select id="wr-winner">${playerOptions()}</select></label>
+ <button class="btn green" style="width:100%;margin-top:12px" onclick="saveWinnerRound('${g.id}')">Ajouter la manche</button></div>
+ ${historyList(g.id)}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('${g.id}')">🏁 Terminer la série</button>`;
+}
+function saveWinnerRound(id){
+ let g=games().find(x=>x.id===id),w=document.getElementById("wr-winner").value,scores={};names().forEach(p=>scores[p]=p===w?1:0);
+ pushRound(g,scores,true,{winner:w});
+}
+
 function renderTrioRounds(p,g){
  let hist=trioRounds(),wins=trioWins();
  p.innerHTML=`<h3>🃏 Trio · manches</h3>
@@ -738,61 +833,110 @@ function finishTrio(id){
 }
 
 function renderTeams(p,g){
-  p.innerHTML=`<h3>🕵️ Résultat de la partie</h3><p class="small">Attribue le camp réel de chacun, puis indique quel camp a gagné.</p>
-  ${names().map((pl,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(pl)}</b></div><select id="team-${i}" style="max-width:170px"><option value="blue">🔵 Bleu / gentil</option><option value="red">🔴 Rouge / traître</option></select></div>`).join("")}
-  <div class="divider"></div><label><b>Équipe gagnante</b><select id="teamWinner"><option value="blue">🔵 Bleus / gentils</option><option value="red">🔴 Rouges / traîtres</option></select></label>
-  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveTeams('${g.id}')">Enregistrer le résultat</button>`;
+ let hist=activeRounds(g.id);
+ p.innerHTML=`<h3>🕵️ ${esc(g.name)} · Partie ${hist.length+1}</h3>${historyBoard(g.id,true,"victoires")}
+ <p class="small">Attribue le camp réel de chacun, puis indique quel camp a gagné.</p>
+ ${names().map((pl,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(pl)}</b></div><select id="team-${i}" style="max-width:170px"><option value="blue">🔵 Bleu / gentil</option><option value="red">🔴 Rouge / traître</option></select></div>`).join("")}
+ <div class="divider"></div><label><b>Équipe gagnante</b><select id="teamWinner"><option value="blue">🔵 Bleus / gentils</option><option value="red">🔴 Rouges / traîtres</option></select></label>
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveTeams('${g.id}')">Ajouter cette partie</button>
+ ${historyList(g.id)}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('${g.id}')">🏁 Terminer la série</button>`;
 }
 function saveTeams(id){
-  let g=games().find(x=>x.id===id),winner=document.getElementById("teamWinner").value,scores={},roles={};
-  names().forEach((p,i)=>{let role=document.getElementById("team-"+i).value;roles[p]=role;scores[p]=role===winner?1:0});
-  saveResult(g,scores,true,{roles,winnerTeam:winner});
+ let g=games().find(x=>x.id===id),winner=document.getElementById("teamWinner").value,scores={},roles={};
+ names().forEach((p,i)=>{let role=document.getElementById("team-"+i).value;roles[p]=role;scores[p]=role===winner?1:0});
+ pushRound(g,scores,true,{roles,winnerTeam:winner});
 }
 function renderRoundLow(p,g){
-  let hist=state.results.filter(r=>r.gameId===g.id && !r.archived),tot={};names().forEach(pl=>tot[pl]=0);
-  hist.forEach(r=>Object.entries(r.scores).forEach(([pl,s])=>tot[pl]=(tot[pl]||0)+s));
-  p.innerHTML=`<h3>🧮 ${esc(g.name)} · score</h3><p class="small">Entre les points de chacun. Le cumul est conservé et le plus petit total reste en tête.</p>
-  ${names().map((pl,i)=>`<div class="score-row"><div class="avatar">${initials(pl)}</div><div style="flex:1"><b>${esc(pl)}</b><div class="small">Cumul : ${tot[pl]||0}</div></div><input id="rl-${i}" type="number" value="0"></div>`).join("")}
-  <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRoundLow('${g.id}')">Ajouter la manche</button>`;
+ let hist=activeRounds(g.id),tot=roundTotals(g.id);
+ p.innerHTML=`<h3>🧮 ${esc(g.name)} · Manche ${hist.length+1}</h3>${historyBoard(g.id,false)}
+ <p class="small">Entre les points de chacun. Le plus petit cumul reste en tête.</p>
+ ${names().map((pl,i)=>`<div class="score-row"><div style="flex:1"><b>${esc(pl)}</b><div class="small">Cumul : ${tot[pl]||0}</div></div><input id="rl-${i}" type="number" inputmode="numeric" value="0"></div>`).join("")}
+ <button class="btn green" style="width:100%;margin-top:14px" onclick="saveRoundLow('${g.id}')">Ajouter la manche</button>
+ ${historyList(g.id)}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishRoundSeries('${g.id}')">🏁 Terminer la partie</button>`;
 }
-function saveRoundLow(id){let g=games().find(x=>x.id===id),scores={};names().forEach((p,i)=>scores[p]=num("rl-"+i));saveResult(g,scores,false,{round:true})}
-
+function saveRoundLow(id){
+ let g=games().find(x=>x.id===id),scores={};names().forEach((p,i)=>scores[p]=num("rl-"+i));
+ pushRound(g,scores,false,{round:true});
+}
+function flipRoundEntries(){return state.results.filter(r=>r.gameId==="flip7_entry"&&!r.archived)}
+function flipCompletedRounds(){return state.results.filter(r=>r.gameId==="flip7"&&r.inProgress&&!r.archived)}
 function flipTotals(){
  let t={};names().forEach(p=>t[p]=0);
- state.results.filter(r=>r.gameId==="flip7" && !r.archived).forEach(r=>Object.entries(r.scores).forEach(([p,s])=>t[p]=(t[p]||0)+s));
+ flipCompletedRounds().forEach(r=>Object.entries(r.scores).forEach(([p,s])=>t[p]=(t[p]||0)+s));
  return t;
 }
+function flipCurrentRound(){return flipCompletedRounds().length+1}
+function flipPendingPlayers(){
+ let done=new Set(flipRoundEntries().filter(r=>r.details?.round===flipCurrentRound()).map(r=>r.details.player));
+ return names().filter(p=>!done.has(p));
+}
+function flipCardButtons(){
+ return Array.from({length:13},(_,n)=>`<button type="button" class="pickbtn" id="fcard-${n}" onclick="toggleFlipNumber(${n})">${n}</button>`).join("");
+}
+function toggleFlipNumber(n){
+ let b=document.getElementById("fcard-"+n);if(b)b.classList.toggle("selected");updateFlipPreview();
+}
+function flipSelectedNumbers(){
+ return Array.from({length:13},(_,n)=>document.getElementById("fcard-"+n)?.classList.contains("selected")?n:null).filter(n=>n!==null);
+}
+function updateFlipPreview(){
+ let bust=document.getElementById("fp-bust")?.checked||false,nums=flipSelectedNumbers(),sum=nums.reduce((a,b)=>a+b,0);
+ let x2=document.getElementById("fp-x2")?.checked||false;
+ let mods=[2,4,6,8,10].reduce((a,v)=>a+(document.getElementById("fp-m"+v)?.checked?v:0),0);
+ let flip7=nums.length===7,score=bust?0:((x2?sum*2:sum)+mods+(flip7?15:0));
+ let e=document.getElementById("fp-preview");if(e)e.textContent=score+" points";
+ let f=document.getElementById("fp-f7");if(f)f.textContent=flip7?"✨ Flip 7 ! +15":"";
+}
 function renderFlip7(p,g){
- let hist=state.results.filter(r=>r.gameId==="flip7" && !r.archived),tot=flipTotals();
- p.innerHTML=`<h3>7️⃣ Flip 7 · Manche ${hist.length+1}</h3><div class="custom-note">Pour chaque joueur, mets la somme de ses cartes Nombre. S’il a sauté, coche “Bust” : la manche vaut 0. Sinon ajoute ses modificateurs.</div>
- ${names().map((pl,i)=>`<div class="calcbox"><div style="display:flex;justify-content:space-between"><b>${esc(pl)}</b><span class="small">Total : ${tot[pl]||0}/200</span></div>
- <div class="formgrid" style="margin-top:9px">
- <label><span>Somme cartes Nombre</span><input class="field" id="fbase-${i}" type="number" min="0" value="0"></label>
- <label><span>État</span><select id="fbust-${i}"><option value="no">Score la manche</option><option value="yes">💥 Bust = 0</option></select></label>
- <label><span>×2</span><select id="fx2-${i}"><option value="0">Non</option><option value="1">Oui</option></select></label>
- <label><span>Bonus +2</span><input class="field" id="f2-${i}" type="number" min="0" value="0"></label>
- <label><span>Bonus +4</span><input class="field" id="f4-${i}" type="number" min="0" value="0"></label>
- <label><span>Bonus +6</span><input class="field" id="f6-${i}" type="number" min="0" value="0"></label>
- <label><span>Bonus +8</span><input class="field" id="f8-${i}" type="number" min="0" value="0"></label>
- <label><span>Bonus +10</span><input class="field" id="f10-${i}" type="number" min="0" value="0"></label>
- <label><span>Flip 7 (+15)</span><select id="ff7-${i}"><option value="0">Non</option><option value="15">Oui</option></select></label>
- </div></div>`).join("")}
- <button class="btn green" style="width:100%;margin-top:14px" onclick="saveFlip7('${g.id}')">Calculer la manche</button><button class="btn alt" style="width:100%;margin-top:8px" onclick="finishCumulativeGame('flip7')">🏁 Terminer cette partie</button>`;
+ let round=flipCurrentRound(),pending=flipPendingPlayers(),entries=flipRoundEntries().filter(r=>r.details?.round===round),tot=flipTotals();
+ let player=pending[0]||names()[0];
+ p.innerHTML=`<h3>7️⃣ Flip 7 · Manche ${round}</h3>
+ <div class="scoreboard">${names().map(pl=>`<div class="scoretile"><b>${esc(pl)}</b><div class="bigscore">${tot[pl]||0}</div><div class="small">/ 200</div></div>`).join("")}</div>
+ <div class="custom-note"><b>Saisie joueur par joueur.</b> Touche simplement les cartes Nombre devant le joueur. Les cartes Action <b>Stop/Freeze</b> et <b>Flip Three</b> changent le déroulement du tour mais n’ajoutent pas directement de points : tu n’as donc rien à saisir pour elles. Second Chance n’ajoute pas non plus de points. Flip Three signifie simplement que le joueur reçoit jusqu’à trois cartes successives ; tu ajoutes les cartes Nombre obtenues ici au fur et à mesure du résultat final de sa manche.</div>
+ ${pending.length?`<div class="calcbox">
+   <label><b>Joueur</b><select id="fp-player">${pending.map(pl=>`<option value="${esc(pl)}">${esc(pl)}</option>`).join("")}</select></label>
+   <div class="small" style="font-weight:800;margin:12px 0 7px">Cartes Nombre obtenues</div>
+   <div class="pickgrid">${flipCardButtons()}</div>
+   <div id="fp-f7" style="font-weight:900;margin-top:8px"></div>
+   <div class="formgrid" style="margin-top:12px">
+    <label class="checkline"><input type="checkbox" id="fp-bust" onchange="updateFlipPreview()"> <span>💥 Bust → 0</span></label>
+    <label class="checkline"><input type="checkbox" id="fp-x2" onchange="updateFlipPreview()"> <span>×2</span></label>
+    ${[2,4,6,8,10].map(v=>`<label class="checkline"><input type="checkbox" id="fp-m${v}" onchange="updateFlipPreview()"> <span>+${v}</span></label>`).join("")}
+   </div>
+   <div class="calcbox"><span class="small">Score de ${esc(player)}</span><div id="fp-preview" style="font-size:26px;font-weight:900">0 points</div></div>
+   <button class="btn green" style="width:100%" onclick="saveFlipPlayer('${g.id}',${round})">Valider ce joueur</button>
+ </div>`:`<div class="calcbox"><b>Tous les joueurs sont saisis ✓</b><button class="btn green" style="width:100%;margin-top:10px" onclick="closeFlipRound('${g.id}',${round})">Valider la manche ${round}</button></div>`}
+ <h3 style="margin-top:16px">Saisis dans cette manche</h3>
+ ${entries.length?entries.map(r=>`<div class="stat"><span>${esc(r.details.player)}</span><b>${r.scores[r.details.player]} pts</b></div>`).join(""):'<div class="empty">Aucun joueur saisi.</div>'}
+ <h3 style="margin-top:16px">Historique des manches</h3>
+ ${flipCompletedRounds().length?flipCompletedRounds().map((r,i)=>`<div class="stat"><span>Manche ${i+1}</span><b style="font-size:14px">${Object.entries(r.scores).map(([p,s])=>`${esc(p)} ${s}`).join(" · ")}</b></div>`).join(""):'<div class="empty">Aucune manche terminée.</div>'}
+ <button class="btn accent" style="width:100%;margin-top:14px" onclick="finishFlip7()">🏁 Terminer cette partie</button>`;
+ setTimeout(updateFlipPreview,0);
 }
-function saveFlip7(id){
- let g=games().find(x=>x.id===id),scores={},details={};
- names().forEach((p,i)=>{
-   let bust=document.getElementById("fbust-"+i).value==="yes",base=num("fbase-"+i),x2=num("fx2-"+i),score=0;
-   if(!bust){score=base;if(x2)score*=2;score+=num("f2-"+i)*2+num("f4-"+i)*4+num("f6-"+i)*6+num("f8-"+i)*8+num("f10-"+i)*10+num("ff7-"+i)}
-   scores[p]=score;details[p]={bust,base,x2,score};
- });
- state.results.push({gameId:g.id,gameName:g.name,scores,higher:true,date:new Date().toISOString(),details});
+function saveFlipPlayer(id,round){
+ let g=games().find(x=>x.id===id),player=document.getElementById("fp-player").value,nums=flipSelectedNumbers(),bust=document.getElementById("fp-bust").checked,x2=document.getElementById("fp-x2").checked;
+ let mods=[2,4,6,8,10].filter(v=>document.getElementById("fp-m"+v).checked),sum=nums.reduce((a,b)=>a+b,0),flip7=nums.length===7;
+ let score=bust?0:((x2?sum*2:sum)+mods.reduce((a,b)=>a+b,0)+(flip7?15:0)),scores={};scores[player]=score;
+ state.results.push({gameId:"flip7_entry",gameName:"Flip 7 · saisie",scores,higher:true,date:new Date().toISOString(),details:{round,player,nums,bust,x2,mods,flip7},inProgress:true});
+ persist();toast(player+" : "+score+" points ✓");renderEngine(g);
+}
+function closeFlipRound(id,round){
+ let g=games().find(x=>x.id===id),entries=flipRoundEntries().filter(r=>r.details?.round===round),scores={};names().forEach(p=>scores[p]=0);
+ entries.forEach(r=>Object.entries(r.scores).forEach(([p,s])=>scores[p]=s));
+ entries.forEach(r=>r.archived=true);
+ state.results.push({gameId:"flip7",gameName:"Flip 7 · manche "+round,scores,higher:true,date:new Date().toISOString(),details:{round},inProgress:true});
  persist();
- let totals=flipTotals(), max=Math.max(...Object.values(totals));
- if(max>=200) toast("Fin de partie : 200 points atteints 🏆"); else toast("Manche ajoutée ✓");
- openGame("flip7");
+ let max=Math.max(...Object.values(flipTotals()));
+ toast(max>=200?"200 points atteints 🏆":"Manche "+round+" enregistrée ✓");renderEngine(g);
 }
-
+function finishFlip7(){
+ let g=games().find(x=>x.id==="flip7"),rounds=flipCompletedRounds();if(!rounds.length)return toast("Aucune manche terminée");
+ let totals=flipTotals();rounds.forEach(r=>r.archived=true);flipRoundEntries().forEach(r=>r.archived=true);
+ state.results.push({gameId:"flip7_finished_"+Date.now(),baseGameId:"flip7",gameName:"Flip 7 · partie terminée",scores:totals,higher:true,date:new Date().toISOString(),completed:true});
+ persist();toast("Partie de Flip 7 terminée 🏆");renderEngine(g);
+}
 
 function finishCumulativeGame(gameId){
  let relevant=state.results.filter(r=>r.gameId===gameId && !r.archived),g=games().find(x=>x.id===gameId);
