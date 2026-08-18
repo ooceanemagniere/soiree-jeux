@@ -1,11 +1,13 @@
-SOIRÉE JEUX — FINALE 1.6
+SOIRÉE JEUX — FINALE 1.7
 
-Nouveau barème général :
-- Les points de soirée sont désormais basés sur la place réelle dans chaque jeu.
-- À 3 joueurs : 3 / 2 / 1.
-- À 4 joueurs : 4 / 3 / 2 / 1.
-- À 5 joueurs : 5 / 4 / 3 / 2 / 1.
-- Le principe est appliqué à tous les jeux individuels où un classement peut être déterminé.
-- Dobble utilise donc désormais ce barème exact.
-- En cas d'égalité sur le score d'un jeu, les joueurs à égalité occupent la même place.
-- Les jeux à équipes gardent une logique spécifique : équipe gagnante avant équipe perdante.
+Nouveauté onglet Joueurs :
+- Liste d'habitués sélectionnable en un clic :
+  Chantal, Jacquot, Kek's, Bab's, Fof, Gwen, Jeanne, Océ, Maxime.
+- Encadré spécial « Groupe Tarot » :
+  Brigitte, Bernard, Jacques, Fred, Chantal.
+- Un joueur déjà sélectionné apparaît en foncé.
+- Cliquer de nouveau le retire de la soirée.
+- Zone « Joueurs sélectionnés » récapitulative.
+- Champ permanent pour ajouter une nouvelle personne.
+- Une nouvelle personne ajoutée rejoint automatiquement la liste des habitués.
+- Nouvelle soirée : les scores et la sélection du soir sont remis à zéro, mais les habitués restent mémorisés.
