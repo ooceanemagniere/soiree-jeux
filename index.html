@@ -26,12 +26,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 .scoreboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:12px 0}
 .scoretile{background:white;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
 .scoretile .bigscore{font-size:25px;font-weight:900}
-.quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.player-pool{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}
-.player-chip{padding:10px 13px;border-radius:999px;background:white;border:1px solid var(--line);font-weight:800}
-.player-chip.active{background:var(--ink);color:white;border-color:var(--ink)}
-.groupbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}
-.groupbox h3{margin:0 0 5px}
+.quickbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.player-pool{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.player-chip{padding:10px 13px;border-radius:999px;background:white;border:1px solid var(--line);font-weight:800}.player-chip.active{background:var(--ink);color:white;border-color:var(--ink)}.groupbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}.groupbox h3{margin:0 0 5px}
 @media(max-width:760px){.grid,.game-list,.formgrid{grid-template-columns:1fr}.hero h1{font-size:29px}.app{padding-left:12px;padding-right:12px}}
 </style>
 </head>
@@ -49,33 +44,12 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 <section id="players" class="hidden">
 <div class="section-title"><h2>Qui joue ce soir ? 👥</h2><span class="small">Sélectionne les joueurs présents</span></div>
 <div class="card">
-  <h3>Famille & habitués</h3>
-  <p class="small">Appuie sur les prénoms pour les ajouter ou les retirer de la soirée.</p>
-  <div id="savedPlayersPool" class="player-pool"></div>
-
-  <div class="groupbox">
-    <h3>♠️ Groupe Tarot</h3>
-    <p class="small">Les joueurs avec qui Mamie joue habituellement au Tarot.</p>
-    <div id="tarotPlayersPool" class="player-pool"></div>
-  </div>
-
-  <div class="divider"></div>
-  <h3>Joueurs sélectionnés</h3>
-  <div id="playersList"></div>
-
-  <div class="divider"></div>
-  <h3>Ajouter une nouvelle personne</h3>
-  <div class="player-row">
-    <div class="avatar">+</div>
-    <input id="newPlayerName" placeholder="Prénom">
-    <button class="btn accent" onclick="addNewSavedPlayer()">Ajouter</button>
-  </div>
-
-  <div class="actions" style="margin-top:12px">
-    <button class="btn green" onclick="savePlayers()">Enregistrer les joueurs</button>
-  </div>
-</div>
-</section>
+<h3>Famille & habitués</h3><p class="small">Appuie sur les prénoms pour les ajouter ou les retirer de la soirée.</p><div id="savedPlayersPool" class="player-pool"></div>
+<div class="groupbox"><h3>♠️ Groupe Tarot</h3><p class="small">Les joueurs habituels du Tarot.</p><div id="tarotPlayersPool" class="player-pool"></div></div>
+<div class="divider"></div><h3>Joueurs sélectionnés</h3><div id="playersList"></div>
+<div class="divider"></div><h3>Ajouter une nouvelle personne</h3><div class="player-row"><div class="avatar">+</div><input id="newPlayerName" placeholder="Prénom"><button class="btn accent" onclick="addNewSavedPlayer()">Ajouter</button></div>
+<div class="actions" style="margin-top:12px"><button class="btn green" onclick="savePlayers()">Enregistrer les joueurs</button></div>
+</div></section>
 
 <section id="games" class="hidden">
 <div class="section-title"><h2>Bibliothèque de jeux 🎲</h2><button class="btn accent" onclick="showTab('addGame')">+ Mon jeu</button></div>
@@ -126,16 +100,8 @@ const builtins=[
 {id:"trio",name:"Trio",emoji:"🃏",min:3,max:6,type:"mémoire",engine:"winner",higher:true,setup:"Distribuez les cartes selon le nombre de joueurs et placez les restantes au centre.",goal:"Obtenir trois trios ou le trio de 7 selon la règle standard.",turn:"Révéler des cartes accessibles en cherchant trois valeurs identiques.",score:"Sélectionne le gagnant."}
 ];
 
-let state=JSON.parse(localStorage.getItem("soireeJeuxFinal")||"null")||{
- players:[],
- results:[],
- customGames:[],
- skullRound:1,
- completedGames:[],
- savedPlayers:["Chantal","Jacquot","Kek's","Bab's","Fof","Gwen","Jeanne","Océ","Maxime"],
- tarotPlayers:["Brigitte","Bernard","Jacques","Fred","Chantal"]
-};
-if(!state.savedPlayers)state.savedPlayers=["Chantal","Jacquot","Kek's","Bab's","Fof","Gwen","Jeanne","Océ","Maxime"];
+let state=JSON.parse(localStorage.getItem("soireeJeuxFinal")||"null")||{players:[],results:[],customGames:[],skullRound:1,completedGames:[],savedPlayers:["Chantal","Jacquot","Keks","Bab's","Fof","Gwen","Jeanne","Océ","Maxime"],tarotPlayers:["Brigitte","Bernard","Jacques","Fred","Chantal"]};
+if(!state.savedPlayers)state.savedPlayers=["Chantal","Jacquot","Keks","Bab's","Fof","Gwen","Jeanne","Océ","Maxime"];
 if(!state.tarotPlayers)state.tarotPlayers=["Brigitte","Bernard","Jacques","Fred","Chantal"];
 if(state.players.length && typeof state.players[0]==="string") state.players=state.players.map(name=>({name}));
 function names(){return state.players.map(p=>p.name)}
@@ -151,49 +117,27 @@ function togglePlayerByGroup(group,index){
  let arr=group==="tarot"?state.tarotPlayers:state.savedPlayers;
  let name=arr[index];
  if(!name)return;
- if(isSelectedPlayer(name)) state.players=state.players.filter(p=>p.name!==name);
- else state.players.push({name});
+ if(isSelectedPlayer(name))state.players=state.players.filter(p=>p.name!==name);else state.players.push({name});
  renderPlayers();
 }
 function renderPlayers(){
- let fam=document.getElementById("savedPlayersPool"),
-     tar=document.getElementById("tarotPlayersPool"),
-     e=document.getElementById("playersList");
+ let fam=document.getElementById("savedPlayersPool"),tar=document.getElementById("tarotPlayersPool"),e=document.getElementById("playersList");
  if(!fam||!tar||!e)return;
-
- fam.innerHTML=state.savedPlayers.map((name,i)=>
-   `<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayerByGroup('saved',${i})">${esc(name)}</button>`
- ).join("");
-
- tar.innerHTML=state.tarotPlayers.map((name,i)=>
-   `<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayerByGroup('tarot',${i})">${esc(name)}</button>`
- ).join("");
-
- e.innerHTML=names().length
-   ? names().map((name,i)=>
-      `<div class="player-row">
-         <div class="avatar">${initials(name)}</div>
-         <div style="flex:1"><b>${esc(name)}</b></div>
-         <button class="btn alt" onclick="removePlayer(${i})">×</button>
-       </div>`
-     ).join("")
-   : '<div class="empty">Aucun joueur sélectionné pour le moment.</div>';
+ fam.innerHTML=state.savedPlayers.map((name,i)=>`<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayerByGroup('saved',${i})">${esc(name)}</button>`).join("");
+ tar.innerHTML=state.tarotPlayers.map((name,i)=>`<button class="player-chip ${isSelectedPlayer(name)?"active":""}" onclick="togglePlayerByGroup('tarot',${i})">${esc(name)}</button>`).join("");
+ e.innerHTML=names().length?names().map((name,i)=>`<div class="player-row"><div class="avatar">${initials(name)}</div><div style="flex:1"><b>${esc(name)}</b></div><button class="btn alt" onclick="removePlayer(${i})">×</button></div>`).join(""):'<div class="empty">Aucun joueur sélectionné pour le moment.</div>';
 }
 function addNewSavedPlayer(){
  let input=document.getElementById("newPlayerName"),name=input.value.trim();
  if(!name)return toast("Entre un prénom");
  if(!state.savedPlayers.includes(name)&&!state.tarotPlayers.includes(name))state.savedPlayers.push(name);
  if(!isSelectedPlayer(name))state.players.push({name});
- input.value="";
- persist();renderPlayers();toast(name+" ajouté ✓");
+ input.value="";persist();renderPlayers();toast(name+" ajouté ✓");
 }
 function addPlayer(){let input=document.getElementById("newPlayerName");if(input)input.focus()}
 function removePlayer(i){state.players.splice(i,1);renderPlayers()}
 function savePlayers(){
  if(names().length<2)return toast("Sélectionne au moins 2 joueurs");
- persist();toast("Joueurs enregistrés ✓");showTab("games")
-})).filter(p=>p.name);
- if(names().length<2)return toast("Ajoute au moins 2 joueurs");
  persist();toast("Joueurs enregistrés ✓");showTab("games")
 }
 function renderGames(){let e=document.getElementById("gamesList");e.innerHTML="";games().forEach(g=>{e.innerHTML+=`<button class="game" onclick="openGame('${g.id}')"><div class="emoji">${g.emoji}</div><b>${esc(g.name)}</b><div class="small">${g.min}–${g.max} joueurs</div><span class="tag">${esc(g.type)}</span>${["skullking","skyjo","tarot","rummikub","yams","flip7"].includes(g.engine)?'<span class="tag auto">calcul auto</span>':""}</button>`})}

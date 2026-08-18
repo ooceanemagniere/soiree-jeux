@@ -1,9 +1,17 @@
-SOIRÉE JEUX — FINALE 1.7.1
+SOIRÉE JEUX — FINALE 1.7.2
 
-Correction urgente :
-- Le prénom "Kek's" cassait le JavaScript à cause de l'apostrophe dans les boutons.
-- Les sélections de joueurs utilisent désormais des index internes, jamais les prénoms injectés dans le code.
-- Les onglets et la navigation refonctionnent.
-- Les accents, apostrophes et caractères spéciaux dans les prénoms sont maintenant sûrs.
+Cette version repart de la Finale 1.6 stable.
 
-Toutes les fonctionnalités de la 1.7 sont conservées.
+Onglet Joueurs :
+- Famille & habitués :
+  Chantal, Jacquot, Keks, Bab's, Fof, Gwen, Jeanne, Océ, Maxime.
+- Groupe Tarot :
+  Brigitte, Bernard, Jacques, Fred, Chantal.
+- Sélection des joueurs en un clic.
+- Possibilité d'ajouter une nouvelle personne.
+- Les habitués restent enregistrés d'une soirée à l'autre.
+- Nouvelle soirée : sélection remise à zéro, listes conservées.
+
+Correction :
+- Keks sans apostrophe.
+- JavaScript vérifié avant génération.
