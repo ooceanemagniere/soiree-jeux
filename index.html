@@ -62,7 +62,16 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{ma
 <div class="section-title"><h2>Qui joue ce soir ? 👥</h2><span class="small">Sélectionne les joueurs présents</span></div>
 <div class="card">
 <h3>Famille & habitués</h3><p class="small">Appuie sur les prénoms pour les ajouter ou les retirer de la soirée.</p><div id="savedPlayersPool" class="player-pool"></div>
-<div class="groupbox"><h3>♠️ Groupe Tarot</h3><p class="small">Les joueurs habituels du Tarot.</p><div id="tarotPlayersPool" class="player-pool"></div></div>
+<div class="groupbox">
+  <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+    <div>
+      <h3>♠️ Groupe Tarot</h3>
+      <p class="small" style="margin-bottom:0">Les joueurs habituels du Tarot.</p>
+    </div>
+    <button class="btn alt" onclick="addAllTarotPlayers()">+ Ajouter tout le groupe</button>
+  </div>
+  <div id="tarotPlayersPool" class="player-pool"></div>
+</div>
 <div class="divider"></div><h3>Joueurs sélectionnés</h3><div id="playersList"></div>
 <div class="divider"></div><h3>Ajouter une nouvelle personne</h3><div class="player-row"><div class="avatar">+</div><input id="newPlayerName" placeholder="Prénom"><button class="btn accent" onclick="addNewSavedPlayer()">Ajouter</button></div>
 <div class="actions" style="margin-top:12px"><button class="btn green" onclick="savePlayers()">Enregistrer les joueurs</button></div>
@@ -117,10 +126,22 @@ const builtins=[
 {id:"trio",name:"Trio",emoji:"🃏",min:3,max:6,type:"mémoire",engine:"winner",higher:true,setup:"Distribuez les cartes selon le nombre de joueurs et placez les restantes au centre.",goal:"Obtenir trois trios ou le trio de 7 selon la règle standard.",turn:"Révéler des cartes accessibles en cherchant trois valeurs identiques.",score:"Sélectionne le gagnant."}
 ];
 
-let state=JSON.parse(localStorage.getItem("soireeJeuxFinal")||"null")||{players:[],results:[],customGames:[],skullRound:1,completedGames:[],savedPlayers:["Chantal","Jacquot","Keks","Bab's","Fof","Gwen","Jeanne","Océ","Maxime"],tarotPlayers:["Brigitte","Bernard","Jacques","Fred","Chantal"]};
+let state=JSON.parse(localStorage.getItem("soireeJeuxFinal")||"null")||{
+ players:[],
+ results:[],
+ customGames:[],
+ skullRound:1,
+ completedGames:[],
+ savedPlayers:["Chantal","Jacquot","Keks","Bab's","Fof","Gwen","Jeanne","Océ","Maxime"],
+ tarotPlayers:["Brigitte","Bernard","Jacques","Fred","Chantal"]
+};
 if(!state.savedPlayers)state.savedPlayers=["Chantal","Jacquot","Keks","Bab's","Fof","Gwen","Jeanne","Océ","Maxime"];
 if(!state.tarotPlayers)state.tarotPlayers=["Brigitte","Bernard","Jacques","Fred","Chantal"];
+if(!state.players)state.players=[];
 if(state.players.length && typeof state.players[0]==="string") state.players=state.players.map(name=>({name}));
+/* Si aucune partie n'est en cours, on repart toujours avec 0 joueur sélectionné.
+   Les listes d'habitués restent, elles, mémorisées. */
+if(!state.results || state.results.length===0) state.players=[];
 function names(){return state.players.map(p=>p.name)}
 function avatarOf(name){return initials(name)}
 function persist(){localStorage.setItem("soireeJeuxFinal",JSON.stringify(state));renderAll()}
@@ -136,6 +157,14 @@ function togglePlayerByGroup(group,index){
  if(!name)return;
  if(isSelectedPlayer(name))state.players=state.players.filter(p=>p.name!==name);else state.players.push({name});
  renderPlayers();
+}
+function addAllTarotPlayers(){
+ state.tarotPlayers.forEach(name=>{
+   if(!isSelectedPlayer(name)) state.players.push({name});
+ });
+ persist();
+ renderPlayers();
+ toast("Groupe Tarot ajouté ♠️");
 }
 function renderPlayers(){
  let fam=document.getElementById("savedPlayersPool"),tar=document.getElementById("tarotPlayersPool"),e=document.getElementById("playersList");
