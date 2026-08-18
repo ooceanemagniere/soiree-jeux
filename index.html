@@ -251,7 +251,8 @@ function renderTarot(p,g){
   let historyHtml=hist.length?hist.map((r,i)=>{
     let d=r.details||{};
     let partnerInfo=d.partner?` · avec ${esc(d.partner)}`:(d.soloFive?" · seul":"");
-    return `<div class="calcbox"><div style="display:flex;justify-content:space-between;gap:10px"><b>Manche ${i+1}</b><span class="small">${esc(d.contractLabel||"Contrat")} · ${esc(d.preneur||"")}${partnerInfo}</span></div>${Object.entries(r.scores).map(([pl,s])=>`<div class="stat"><span>${esc(pl)}</span><b>${s>0?"+":""}${s}</b></div>`).join("")}</div>`;
+    let dealerInfo=d.dealer?` · donneur ${esc(d.dealer)}`:"";
+    return `<div class="calcbox"><div style="display:flex;justify-content:space-between;gap:10px"><b>Manche ${i+1}</b><span class="small">${esc(d.contractLabel||"Contrat")} · ${esc(d.preneur||"")}${partnerInfo}${dealerInfo}</span></div>${Object.entries(r.scores).map(([pl,s])=>`<div class="stat"><span>${esc(pl)}</span><b>${s>0?"+":""}${s}</b></div>`).join("")}</div>`;
   }).join(""):'<div class="empty">Aucune manche de Tarot enregistrée.</div>';
   let totalHtml=names().map(pl=>`<div class="stat"><span>${esc(pl)}</span><b>${totals[pl]>0?"+":""}${totals[pl]||0}</b></div>`).join("");
 
@@ -273,6 +274,7 @@ function renderTarot(p,g){
   p.innerHTML=`<h3>🃏 Nouvelle manche Tarot</h3>
   <div class="round-chip">Manche ${hist.length+1} · ${n} joueurs</div>
   <div class="formgrid" style="margin-top:12px">
+  <label><span>Donneur</span><select id="tar-dealer" onchange="updateTarotOrder()">${playerOptions()}</select></label>
   <label><span>Preneur</span><select id="tar-preneur">${playerOptions()}</select></label>
   ${fivePlayerFields}
   <label><span>Contrat</span><select id="tar-contrat">
@@ -292,37 +294,72 @@ function renderTarot(p,g){
   <label><span>Misère de tête</span><select id="tar-misere-tete">${playerOptions(true)}</select></label>
   <label><span>Valeur de chaque misère</span><input class="field" id="tar-misere-val" type="number" value="10" min="0"></label>
   </div>
-  <div class="custom-note">Les misères sont des conventions de table : leur valeur reste réglable. À 5 joueurs, les points du camp attaquant sont répartis entre preneur et partenaire.</div>
+  <div class="custom-note">Les misères sont des conventions de table : leur valeur reste réglable. À 5 joueurs avec partenaire, chaque défenseur vaut 1 part, le partenaire 1 part et le preneur 2 parts. Si le preneur joue seul contre 4, il prend 4 parts.</div>
+  <div class="calcbox"><div class="small">Ordre de jeu</div><b id="tar-order">Choisis le donneur</b><div class="small" style="margin-top:4px">Le joueur à droite du donneur entame, puis le jeu tourne dans le sens inverse des aiguilles d’une montre.</div></div>
   <button class="btn green" style="width:100%;margin-top:14px" onclick="saveTarot('${g.id}',${n})">Enregistrer la manche</button>
   <div class="divider"></div><h3>Cumul de la partie</h3>${totalHtml}
   <h3 style="margin-top:16px">Historique des manches</h3>${historyHtml}<button class="btn accent" style="width:100%;margin-top:14px" onclick="finishCumulativeGame('tarot')">🏁 Terminer cette partie de Tarot</button>`;
+  setTimeout(updateTarotOrder,0);
+}
+
+function updateTarotOrder(){
+  let el=document.getElementById("tar-dealer"),target=document.getElementById("tar-order");
+  if(!el||!target)return;
+  let dealer=el.value,ps=names(),idx=ps.indexOf(dealer);
+  if(idx<0){target.textContent="Choisis le donneur";return;}
+  let order=[];
+  for(let k=1;k<=ps.length;k++)order.push(ps[(idx+k)%ps.length]);
+  target.textContent=order.join(" → ");
 }
 
 function saveTarot(id,n){
-  let g=games().find(x=>x.id===id),pr=document.getElementById("tar-preneur").value;
-  let contractEl=document.getElementById("tar-contrat"),coef=Number(contractEl.value),contractLabel=contractEl.options[contractEl.selectedIndex].dataset.label;
-  let bouts=num("tar-bouts"),pts=num("tar-points"),targets=[56,51,41,36],target=targets[bouts],diff=pts-target,won=diff>=0,sign=won?1:-1;
-  let unit=sign*(25+Math.abs(diff))*coef;
-  let poignee=num("tar-poignee"),pc=document.getElementById("tar-poignee-camp").value;if(poignee)unit+=(pc==="attack"?1:-1)*poignee;
-  let petit=document.getElementById("tar-petit").value;if(petit!=="none")unit+=(petit==="attack"?1:-1)*10*coef;
+  let g=games().find(x=>x.id===id),
+      dealer=document.getElementById("tar-dealer").value,
+      pr=document.getElementById("tar-preneur").value;
+
+  let contractEl=document.getElementById("tar-contrat"),
+      coef=Number(contractEl.value),
+      contractLabel=contractEl.options[contractEl.selectedIndex].dataset.label;
+
+  let bouts=num("tar-bouts"),
+      rawPts=num("tar-points"),
+      targets=[56,51,41,36],
+      target=targets[bouts];
+
+  // A 3 ou 5 joueurs, le demi-point va au camp gagnant.
+  let pts=rawPts;
+  let frac=Math.abs(rawPts-Math.trunc(rawPts));
+  if((n===3||n===5) && Math.abs(frac-0.5)<0.001){
+    pts = rawPts>=target ? Math.ceil(rawPts) : Math.floor(rawPts);
+  }
+
+  let diff=pts-target,
+      won=diff>=0,
+      sign=won?1:-1,
+      unit=sign*(25+Math.abs(diff))*coef;
+
+  let poignee=num("tar-poignee"),
+      pc=document.getElementById("tar-poignee-camp").value;
+  if(poignee)unit+=(pc==="attack"?1:-1)*poignee;
+
+  let petit=document.getElementById("tar-petit").value;
+  if(petit!=="none")unit+=(petit==="attack"?1:-1)*10*coef;
+
   unit+=num("tar-chelem");
 
-  let scores={};
-  let partner="",soloFive=false;
+  let scores={},partner="",soloFive=false;
 
   if(n===5){
     partner=document.getElementById("tar-partner").value;
     if(partner===pr)return toast("Le partenaire doit être différent du preneur");
+
     if(partner){
-      // Each of the 3 defenders scores -unit; attack total is +3*unit:
-      // 2/3 to preneur = +2*unit, 1/3 to partner = +unit.
       names().forEach(p=>{
         if(p===pr)scores[p]=2*unit;
         else if(p===partner)scores[p]=unit;
         else scores[p]=-unit;
       });
     }else{
-      // Preneur alone against four defenders.
       soloFive=true;
       names().forEach(p=>scores[p]=p===pr?4*unit:-unit);
     }
@@ -330,14 +367,31 @@ function saveTarot(id,n){
     names().forEach(p=>scores[p]=p===pr?unit*(n-1):-unit);
   }
 
-  let misereVal=num("tar-misere-val",10),ma=document.getElementById("tar-misere-atout").value,mt=document.getElementById("tar-misere-tete").value;
+  let misereVal=num("tar-misere-val",10),
+      ma=document.getElementById("tar-misere-atout").value,
+      mt=document.getElementById("tar-misere-tete").value;
+
   [ma,mt].filter(Boolean).forEach(benef=>{
-    names().forEach(p=>{if(p===benef)scores[p]+=misereVal*(n-1);else scores[p]-=misereVal});
+    names().forEach(p=>{
+      if(p===benef)scores[p]+=misereVal*(n-1);
+      else scores[p]-=misereVal;
+    });
   });
 
-  saveResult(g,scores,true,{preneur:pr,partner,soloFive,coef,contractLabel,bouts,pts,target,unit,misereAtout:ma,misereTete:mt,misereVal});
-}
+  let zeroCheck=Object.values(scores).reduce((a,b)=>a+b,0);
+  if(Math.abs(zeroCheck)>0.001)return toast("Erreur de calcul : la somme des scores n’est pas nulle");
 
+  let ps=names(),idx=ps.indexOf(dealer),playOrder=[];
+  if(idx>=0)for(let k=1;k<=ps.length;k++)playOrder.push(ps[(idx+k)%ps.length]);
+
+  saveResult(g,scores,true,{
+    dealer,playOrder,
+    preneur:pr,partner,soloFive,
+    coef,contractLabel,bouts,
+    rawPts,pts,target,diff,unit,
+    misereAtout:ma,misereTete:mt,misereVal
+  });
+}
 
 
 function ordinalFr(n){return n===1?"1er":n+"e"}
